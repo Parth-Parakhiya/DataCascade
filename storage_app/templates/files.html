@@ -44,17 +44,36 @@
     <!-- Upload Progress Modal -->
     <div id="upload-progress-modal" class="modal-overlay">
         <div class="modal-content">
-            <h3><i class="fas fa-cloud-upload-alt"></i> Uploading File</h3>
+            <h3><i class="fas fa-cloud-upload-alt"></i> File Upload Process</h3>
+    
             <div class="progress-container">
                 <div class="progress">
                     <div id="upload-progress-bar" class="progress-bar" role="progressbar"></div>
                 </div>
                 <div class="progress-text">0%</div>
             </div>
+            
             <p id="upload-status-message" class="status-message">Preparing upload...</p>
+            
+            <!-- Upload Stages -->
+            <div id="upload-stages" class="upload-stages">
+                <!-- Stages will be dynamically inserted here -->
+            </div>
+            
+            <!-- Success Animation (hidden by default) -->
+            <div id="completion-animation" class="completion-animation">
+                <div class="success-checkmark">
+                    <div class="check-icon">
+                        <span class="icon-line line-tip"></span>
+                        <span class="icon-line line-long"></span>
+                        <div class="icon-circle"></div>
+                        <div class="icon-fix"></div>
+                    </div>
+                </div>
+                <p>Upload successful!</p>
+            </div>
         </div>
     </div>
-
     <!-- Files Table -->
     <div class="files-table-container">
         {% if files %}
@@ -119,132 +138,189 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const uploadForm = document.getElementById('upload-form');
-        const uploadProgressModal = document.getElementById('upload-progress-modal');
-        const uploadProgressBar = document.getElementById('upload-progress-bar');
-        const uploadStatusMessage = document.getElementById('upload-status-message');
-        const uploadSubmitBtn = document.getElementById('upload-submit-btn');
-        const progressText = document.querySelector('.progress-text');
+  document.addEventListener('DOMContentLoaded', function() {
+    const uploadForm = document.getElementById('upload-form');
+    const uploadProgressModal = document.getElementById('upload-progress-modal');
+    const uploadProgressBar = document.getElementById('upload-progress-bar');
+    const uploadStatusMessage = document.getElementById('upload-status-message');
+    const uploadSubmitBtn = document.getElementById('upload-submit-btn');
+    const progressText = document.querySelector('.progress-text');
+    const stagesContainer = document.getElementById('upload-stages');
 
-        uploadForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            // Show progress modal
-            uploadProgressModal.style.display = 'flex';
-            uploadSubmitBtn.disabled = true;
-
-            // Prepare form data
-            const formData = new FormData(uploadForm);
-
-            // AJAX upload
-            const xhr = new XMLHttpRequest();
-
-            // Track upload progress
-            xhr.upload.onprogress = function (event) {
-                if (event.lengthComputable) {
-                    const percentComplete = Math.round((event.loaded / event.total) * 100);
-                    uploadProgressBar.style.width = `${percentComplete}%`;
-                    progressText.textContent = `${percentComplete}%`;
-                    uploadStatusMessage.textContent = `Uploading: ${percentComplete}%`;
-                }
-            };
-
-            xhr.onload = function () {
-                uploadSubmitBtn.disabled = false;
-
-                if (xhr.status === 200) {
-                    // Success
-                    uploadStatusMessage.textContent = 'Upload Complete!';
-                    uploadProgressBar.classList.add('success');
-
-                    // Redirect or refresh after a short delay
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
-                } else {
-                    // Error
-                    uploadStatusMessage.textContent = 'Upload Failed. Please try again.';
-                    uploadProgressBar.classList.add('error');
-                }
-            };
-
-            xhr.onerror = function () {
-                uploadSubmitBtn.disabled = false;
-                uploadStatusMessage.textContent = 'Network Error. Please try again.';
-                uploadProgressBar.classList.add('error');
-            };
-
-            // Send request
-            xhr.open('POST', uploadForm.action, true);
-            xhr.send(formData);
-        });
-
-        // Download tracking
-        const downloadButtons = document.querySelectorAll('.download-btn');
-
-        downloadButtons.forEach(button => {
-            button.addEventListener('click', function (e) {
-                e.preventDefault();
-
-                const fileId = this.getAttribute('data-file-id');
-                const fileName = this.getAttribute('data-file-name');
-                const downloadStatusEl = document.getElementById(`download-status-${fileId}`);
-
-                // Disable download button during download
-                this.disabled = true;
-
-                // Show initial download status
-                downloadStatusEl.innerHTML = `
-                <div class="download-spinner">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <span>Downloading...</span>
+    uploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show progress modal
+        uploadProgressModal.style.display = 'flex';
+        uploadSubmitBtn.disabled = true;
+        
+        // Reset progress elements
+        uploadProgressBar.style.width = '0%';
+        uploadProgressBar.className = 'progress-bar';
+        progressText.textContent = '0%';
+        
+        // Initialize the upload stages
+        stagesContainer.innerHTML = `
+            <div class="upload-stage current" id="stage-chunking">
+                <div class="stage-icon">
+                    <i class="fas fa-puzzle-piece fa-spin"></i>
                 </div>
-            `;
-
-                // Fetch download status
-                fetch(`/download/${fileId}/`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Download failed');
-                        }
-
-                        // Trigger file download
-                        return response.blob();
-                    })
-                    .then(blob => {
-                        // Create a link to download the file
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.style.display = 'none';
-                        a.href = url;
-                        a.download = fileName;
-                        document.body.appendChild(a);
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-
-                        // Update status
-                        downloadStatusEl.innerHTML = `
-                        <span class="status-success">
-                            <i class="fas fa-check-circle"></i> Complete
-                        </span>
-                    `;
-                    })
-                    .catch(error => {
-                        // Handle download error
-                        downloadStatusEl.innerHTML = `
-                        <span class="status-error">
-                            <i class="fas fa-times-circle"></i> Failed
-                        </span>
-                    `;
-                        console.error('Download error:', error);
-                    })
-                    .finally(() => {
-                        // Re-enable download button
-                        this.disabled = false;
-                    });
-            });
-        });
+                <div class="stage-content">
+                    <h4>Chunking File</h4>
+                    <p>Breaking file into manageable pieces...</p>
+                </div>
+            </div>
+            <div class="upload-stage" id="stage-preprocessing">
+                <div class="stage-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div class="stage-content">
+                    <h4>Preprocessing</h4>
+                    <p>Optimizing file for upload...</p>
+                </div>
+            </div>
+            <div class="upload-stage" id="stage-checksum">
+                <div class="stage-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="stage-content">
+                    <h4>Generating Checksum</h4>
+                    <p>Verifying file integrity...</p>
+                </div>
+            </div>
+            <div class="upload-stage" id="stage-uploading">
+                <div class="stage-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="stage-content">
+                    <h4>Uploading to Server</h4>
+                    <p>Transferring file to storage...</p>
+                </div>
+            </div>
+            <div class="upload-stage" id="stage-complete">
+                <div class="stage-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stage-content">
+                    <h4>Complete</h4>
+                    <p>File successfully uploaded!</p>
+                </div>
+            </div>
+        `;
+        
+        // Prepare form data
+        const formData = new FormData(uploadForm);
+        const file = formData.get('file');
+        
+        // Simulate chunking stage (3 seconds)
+        updateStage('chunking', true);
+        uploadStatusMessage.textContent = 'Preparing file for upload...';
+        
+        setTimeout(() => {
+            // Mark chunking as complete and move to preprocessing
+            updateStage('chunking', false, true);
+            updateStage('preprocessing', true);
+            uploadProgressBar.style.width = '20%';
+            progressText.textContent = '20%';
+            uploadStatusMessage.textContent = 'Processing file...';
+            
+            // Simulate preprocessing stage (2 seconds)
+            setTimeout(() => {
+                // Mark preprocessing as complete and move to checksum
+                updateStage('preprocessing', false, true);
+                updateStage('checksum', true);
+                uploadProgressBar.style.width = '40%';
+                progressText.textContent = '40%';
+                uploadStatusMessage.textContent = 'Generating checksum...';
+                
+                // Simulate checksum generation (2 seconds)
+                setTimeout(() => {
+                    // Mark checksum as complete and start actual upload
+                    updateStage('checksum', false, true);
+                    updateStage('uploading', true);
+                    uploadProgressBar.style.width = '50%';
+                    progressText.textContent = '50%';
+                    uploadStatusMessage.textContent = 'Starting upload to server...';
+                    
+                    // Now start the actual AJAX upload
+                    startActualUpload(formData);
+                }, 2000);
+            }, 2000);
+        }, 3000);
     });
+    
+    function updateStage(stageName, isActive, isComplete = false) {
+        const stage = document.getElementById(`stage-${stageName}`);
+        
+        // Remove current class from all stages
+        if (isActive) {
+            document.querySelectorAll('.upload-stage').forEach(el => {
+                el.classList.remove('current');
+            });
+            stage.classList.add('current');
+        } else if (isComplete) {
+            stage.classList.remove('current');
+            stage.classList.add('complete');
+            
+            // Update the icon to a checkmark
+            const icon = stage.querySelector('.stage-icon i');
+            icon.className = 'fas fa-check';
+        }
+    }
+    
+    function startActualUpload(formData) {
+        // AJAX upload
+        const xhr = new XMLHttpRequest();
+        
+        // Track upload progress
+        xhr.upload.onprogress = function(event) {
+            if (event.lengthComputable) {
+                // Scale the percentage to be between 50% and 95%
+                const percentComplete = Math.round(50 + (event.loaded / event.total) * 45);
+                uploadProgressBar.style.width = `${percentComplete}%`;
+                progressText.textContent = `${percentComplete}%`;
+                uploadStatusMessage.textContent = `Uploading: ${percentComplete}%`;
+            }
+        };
+        
+        xhr.onload = function() {
+            uploadSubmitBtn.disabled = false;
+            
+            if (xhr.status === 200) {
+                // Complete the upload stage
+                updateStage('uploading', false, true);
+                updateStage('complete', true);
+                
+                // Set to 100%
+                uploadProgressBar.style.width = '100%';
+                progressText.textContent = '100%';
+                uploadStatusMessage.textContent = 'Upload Complete!';
+                uploadProgressBar.classList.add('success');
+                
+                // Show completion animation
+                document.getElementById('completion-animation').style.display = 'block';
+                
+                // Redirect or refresh after a short delay
+                setTimeout(() => {
+                    window.location.reload();
+                }, 3000);
+            } else {
+                // Error
+                uploadStatusMessage.textContent = 'Upload Failed. Please try again.';
+                uploadProgressBar.classList.add('error');
+            }
+        };
+        
+        xhr.onerror = function() {
+            uploadSubmitBtn.disabled = false;
+            uploadStatusMessage.textContent = 'Network Error. Please try again.';
+            uploadProgressBar.classList.add('error');
+        };
+        
+        // Send request
+        xhr.open('POST', uploadForm.action, true);
+        xhr.send(formData);
+    }
+});
 </script>
 {% endblock %}
