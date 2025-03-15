@@ -15,6 +15,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Top accent bar -->
+    <div class="accent-bar"></div>
+    
     <header>
         <div class="nav-container">
             <a href="{% url 'index' %}" class="logo">
@@ -22,41 +25,33 @@
                 <h1>DataCascade</h1>
             </a>
             
-            <button class="hamburger" id="hamburger-menu">
-                <i class="fas fa-bars"></i>
-            </button>
-            
-            <nav id="nav-menu">
-                <a href="{% url 'index' %}" class="{% if request.path == '/' %}active{% endif %}">
+            <nav>
+                <a href="{% url 'index' %}">
                     <i class="fas fa-home"></i> Home
                 </a>
-                <a href="{% url 'files' %}" class="{% if 'files' in request.path %}active{% endif %}">
+                <a href="{% url 'files' %}">
                     <i class="fas fa-file"></i> Files
                 </a>
                 
                 {% if user.is_authenticated %}
-                <div class="user-section">
-                    <a href="{% url 'profile' %}" class="{% if 'profile' in request.path %}active{% endif %}">
-                        <i class="fas fa-user"></i> Profile
-                    </a>
-                    {% if user.is_superuser %}
-                    <a href="{% url 'admin_dashboard' %}" class="{% if 'admin' in request.path %}active{% endif %}">
-                        <i class="fas fa-gauge-high"></i> Admin
-                    </a>
-                    {% endif %}
-                    <a href="{% url 'logout' %}" class="btn btn-outline">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a>
-                </div>
+                <a href="{% url 'profile' %}">
+                    <i class="fas fa-user"></i> Profile
+                </a>
+                {% if user.is_superuser %}
+                <a href="{% url 'admin_dashboard' %}">
+                    <i class="fas fa-gauge-high"></i> Admin
+                </a>
+                {% endif %}
+                <a href="{% url 'logout' %}" class="btn btn-outline">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
                 {% else %}
-                <div class="user-section">
-                    <a href="{% url 'login' %}" class="btn btn-outline">
-                        <i class="fas fa-sign-in-alt"></i> Login
-                    </a>
-                    <a href="{% url 'register' %}" class="btn btn-primary">
-                        <i class="fas fa-user-plus"></i> Register
-                    </a>
-                </div>
+                <a href="{% url 'login' %}" class="btn btn-outline">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <a href="{% url 'register' %}" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i> Register
+                </a>
                 {% endif %}
             </nav>
         </div>
@@ -117,25 +112,5 @@
             <p>&copy; 2025 DataCascade. All rights reserved.</p>
         </div>
     </footer>
-    
-    <script>
-        // JavaScript for the mobile menu toggle
-        document.addEventListener('DOMContentLoaded', function() {
-            const hamburger = document.getElementById('hamburger-menu');
-            const navMenu = document.getElementById('nav-menu');
-            
-            hamburger.addEventListener('click', function() {
-                navMenu.classList.toggle('nav-open');
-                const icon = hamburger.querySelector('i');
-                if (icon.classList.contains('fa-bars')) {
-                    icon.classList.remove('fa-bars');
-                    icon.classList.add('fa-times');
-                } else {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-            });
-        });
-    </script>
 </body>
 </html>

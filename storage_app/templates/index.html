@@ -1,17 +1,18 @@
-<!-- storage_app/templates/storage_app/index.html -->
+<!-- storage_app/templates/index.html -->
 {% extends 'base.html' %}
 
 {% block title %}DataCascade - Distributed Storage System{% endblock %}
 
 {% block content %}
-<!-- Hero Carousel Section -->
+<!-- Hero Section -->
 <section class="hero">
     <div class="carousel" id="feature-carousel">
         <!-- Slide 1 -->
         <div class="carousel-item">
             <div class="carousel-content">
                 <h2>Distributed Storage System</h2>
-                <p>DataCascade efficiently splits and distributes your files across multiple storage nodes, ensuring high availability and reliability.</p>
+                <p>DataCascade efficiently splits and distributes your files across multiple storage nodes, ensuring
+                    high availability and reliability.</p>
                 <a href="{% url 'register' %}" class="btn btn-primary">
                     <i class="fas fa-rocket"></i> Get Started
                 </a>
@@ -20,26 +21,28 @@
                 <i class="fas fa-database" style="font-size: 8rem; color: #3498db;"></i>
             </div>
         </div>
-        
+
         <!-- Slide 2 -->
         <div class="carousel-item">
             <div class="carousel-content">
                 <h2>Intelligent File Chunking</h2>
-                <p>Our advanced chunking algorithm optimizes storage efficiency while maintaining fast retrieval times for all your data.</p>
+                <p>Our advanced chunking algorithm optimizes storage efficiency while maintaining fast retrieval times
+                    for all your data.</p>
                 <a href="#" class="btn btn-primary">
-                    <i class="fas fa-chart-pie"></i> Learn More
+                    <i class="fas fa-puzzle-piece"></i> Learn More
                 </a>
             </div>
             <div class="carousel-image">
                 <i class="fas fa-puzzle-piece" style="font-size: 8rem; color: #2ecc71;"></i>
             </div>
         </div>
-        
+
         <!-- Slide 3 -->
         <div class="carousel-item">
             <div class="carousel-content">
                 <h2>Redundancy & Security</h2>
-                <p>Built-in error checking and multiple replication strategies ensure your data remains safe and accessible at all times.</p>
+                <p>Built-in error checking and multiple replication strategies ensure your data remains safe and
+                    accessible at all times.</p>
                 <a href="#" class="btn btn-primary">
                     <i class="fas fa-shield-alt"></i> Explore Security
                 </a>
@@ -49,67 +52,71 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Carousel Navigation Dots -->
-    <div class="carousel-dots">
-        <span class="dot active" data-slide="0"></span>
-        <span class="dot" data-slide="1"></span>
-        <span class="dot" data-slide="2"></span>
+    <div class="carousel-navigation">
+        <div class="carousel-dot active" data-slide="0"></div>
+        <div class="carousel-dot" data-slide="1"></div>
+        <div class="carousel-dot" data-slide="2"></div>
     </div>
 </section>
 
 <!-- Features Section -->
-<section class="features">
+<section class="features-section">
     <h2 class="section-title">Key Features</h2>
-    <div class="cards-container">
+    <div class="feature-cards">
         <!-- Feature 1 -->
-        <div class="card">
-            <div class="card-icon">
+        <div class="feature-card">
+            <div class="feature-icon">
                 <i class="fas fa-layer-group"></i>
             </div>
             <h3>File Chunking</h3>
-            <p>Break large files into manageable chunks for efficient storage and faster retrieval across distributed nodes.</p>
+            <p>Break large files into manageable chunks for efficient storage and faster retrieval across distributed
+                nodes.</p>
         </div>
-        
+
         <!-- Feature 2 -->
-        <div class="card">
-            <div class="card-icon">
+        <div class="feature-card">
+            <div class="feature-icon">
                 <i class="fas fa-network-wired"></i>
             </div>
             <h3>Distributed Storage</h3>
-            <p>Intelligently distribute file chunks across multiple storage nodes for optimal performance and reliability.</p>
+            <p>Intelligently distribute file chunks across multiple storage nodes for optimal performance and
+                reliability.</p>
         </div>
-        
+
         <!-- Feature 3 -->
-        <div class="card">
-            <div class="card-icon">
+        <div class="feature-card">
+            <div class="feature-icon">
                 <i class="fas fa-copy"></i>
             </div>
             <h3>Replication</h3>
-            <p>Create multiple copies of your data across different nodes to ensure availability even if some nodes fail.</p>
+            <p>Create multiple copies of your data across different nodes to ensure availability even if some nodes
+                fail.</p>
         </div>
-        
+
         <!-- Feature 4 -->
-        <div class="card">
-            <div class="card-icon">
+        <div class="feature-card">
+            <div class="feature-icon">
                 <i class="fas fa-check-double"></i>
             </div>
             <h3>Error Checking</h3>
-            <p>Advanced checksums and verification techniques ensure your data remains uncorrupted during storage and retrieval.</p>
+            <p>Advanced checksums and verification techniques ensure your data remains uncorrupted during storage and
+                retrieval.</p>
         </div>
-        
+
         <!-- Feature 5 -->
-        <div class="card">
-            <div class="card-icon">
+        <div class="feature-card">
+            <div class="feature-icon">
                 <i class="fas fa-tachometer-alt"></i>
             </div>
             <h3>Performance Optimization</h3>
             <p>Retrieve files from the nearest or least-loaded node for maximum speed and efficiency.</p>
         </div>
-        
+
         <!-- Feature 6 -->
-        <div class="card">
-            <div class="card-icon">
+        <div class="feature-card">
+            <div class="feature-icon">
                 <i class="fas fa-chart-line"></i>
             </div>
             <h3>Monitoring Dashboard</h3>
@@ -119,30 +126,30 @@
 </section>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Carousel functionality
         let currentSlide = 0;
         const carousel = document.getElementById('feature-carousel');
-        const dots = document.querySelectorAll('.dot');
+        const dots = document.querySelectorAll('.carousel-dot');
         const totalSlides = dots.length;
-        
+
         // Set up dot navigation
         dots.forEach(dot => {
-            dot.addEventListener('click', function() {
+            dot.addEventListener('click', function () {
                 currentSlide = parseInt(this.getAttribute('data-slide'));
                 updateCarousel();
             });
         });
-        
+
         // Auto advance carousel
         setInterval(() => {
             currentSlide = (currentSlide + 1) % totalSlides;
             updateCarousel();
         }, 5000);
-        
+
         function updateCarousel() {
             carousel.style.transform = `translateX(-${currentSlide * 33.33}%)`;
-            
+
             // Update active dot
             dots.forEach((dot, index) => {
                 if (index === currentSlide) {
