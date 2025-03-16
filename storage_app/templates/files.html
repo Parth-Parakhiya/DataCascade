@@ -166,50 +166,39 @@
     const downloadStatusContainer = document.getElementById('download-status-container');
 
     // Add event listeners to all download buttons
-    document.querySelectorAll('.download-btn').forEach(btn => {
-        btn.addEventListener('click', function (e) {
-            const fileId = this.getAttribute('data-file-id');
-            const fileName = this.getAttribute('data-file-name');
+    // Add event listeners to all download buttons
+document.querySelectorAll('.download-btn').forEach(btn => {
+    btn.addEventListener('click', function (e) {
+        const fileId = this.getAttribute('data-file-id');
+        const fileName = this.getAttribute('data-file-name');
 
-            // Create or update the download status element
-            const downloadStatusCell = document.getElementById(`download-status-${fileId}`);
+        // Create or update the download status element
+        const downloadStatusCell = document.getElementById(`download-status-${fileId}`);
 
-            if (downloadStatusCell) {
-                // Show downloading status
-                downloadStatusCell.innerHTML = `
-        <div class="download-progress">
-            <div class="download-progress-bar"></div>
-            <span class="download-progress-text">0%</span>
-        </div>
-        <div class="download-status-message">Preparing download...</div>
-        `;
-
-                const progressBar = downloadStatusCell.querySelector('.download-progress-bar');
-                const progressTextElement = downloadStatusCell.querySelector('.download-progress-text');
-                const statusMessage = downloadStatusCell.querySelector('.download-status-message');
-
-                // Simulate download progress
-                let progress = 0;
-                const downloadInterval = setInterval(() => {
-                    progress += 5;
-                    if (progress > 100) {
-                        clearInterval(downloadInterval);
-
-                        // Show simple completion message with icon
-                        downloadStatusCell.innerHTML = `
-                <div class="download-complete">
-                    <i class="fas fa-check-circle"></i> Complete
+        if (downloadStatusCell) {
+            // Show downloading status
+            downloadStatusCell.innerHTML = `
+                <div class="download-progress">
+                    <div class="download-progress-bar"></div>
+                    <span class="download-progress-text">0%</span>
                 </div>
-                `;
+                <div class="download-status-message">Preparing download...</div>
+            `;
 
-                        // Clear the status after some time
-                        setTimeout(() => {
-                            downloadStatusCell.innerHTML = '';
-                        }, 10000); // 10 seconds
+            const progressBar = downloadStatusCell.querySelector('.download-progress-bar');
+            const progressTextElement = downloadStatusCell.querySelector('.download-progress-text');
+            const statusMessage = downloadStatusCell.querySelector('.download-status-message');
 
-                        return;
-                    }
-
+            // Start the actual download
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', this.href, true);
+            xhr.responseType = 'blob';
+            
+            // Track download progress
+            xhr.onprogress = function(event) {
+                if (event.lengthComputable) {
+                    const progress = Math.round((event.loaded / event.total) * 100);
+                    
                     // Update progress
                     progressBar.style.width = `${progress}%`;
                     progressTextElement.textContent = `${progress}%`;
@@ -219,15 +208,88 @@
                         statusMessage.textContent = 'Preparing';
                     } else if (progress < 50) {
                         statusMessage.textContent = 'Processing';
-                    } else if (progress < 75) {
+                    } else if (progress < 95) {
                         statusMessage.textContent = 'Downloading';
                     } else {
                         statusMessage.textContent = 'Finalizing...';
                     }
-                }, 200);
-            }
-        });
+                }
+            };
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    // Download completed successfully
+                    // Show completion message with icon
+                    downloadStatusCell.innerHTML = `
+                        <div class="download-complete">
+                            <i class="fas fa-check-circle"></i> Complete
+                        </div>
+                    `;
+
+                    // Create download link
+                    const url = window.URL.createObjectURL(xhr.response);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    
+                    // Clear the status after some time
+                    setTimeout(() => {
+                        downloadStatusCell.innerHTML = '';
+                    }, 5000); // 5 seconds
+                } else {
+                    // Show error message
+                    downloadStatusCell.innerHTML = `
+                        <div class="download-error">
+                            <i class="fas fa-times-circle"></i> Failed
+                            <button class="retry-btn" data-file-id="${fileId}">
+                                <i class="fas fa-redo"></i> Retry
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Add event listener to retry button
+                    const retryBtn = downloadStatusCell.querySelector('.retry-btn');
+                    if (retryBtn) {
+                        retryBtn.addEventListener('click', function() {
+                            const fileIdToRetry = this.getAttribute('data-file-id');
+                            document.querySelector(`.download-btn[data-file-id="${fileIdToRetry}"]`).click();
+                        });
+                    }
+                }
+            };
+
+            xhr.onerror = function() {
+                // Show error message
+                downloadStatusCell.innerHTML = `
+                    <div class="download-error">
+                        <i class="fas fa-times-circle"></i> Network Error
+                        <button class="retry-btn" data-file-id="${fileId}">
+                            <i class="fas fa-redo"></i> Retry
+                        </button>
+                    </div>
+                `;
+                
+                // Add event listener to retry button
+                const retryBtn = downloadStatusCell.querySelector('.retry-btn');
+                if (retryBtn) {
+                    retryBtn.addEventListener('click', function() {
+                        const fileIdToRetry = this.getAttribute('data-file-id');
+                        document.querySelector(`.download-btn[data-file-id="${fileIdToRetry}"]`).click();
+                    });
+                }
+            };
+
+            xhr.send();
+            
+            // Prevent default click behavior since we're handling the download via XHR
+            e.preventDefault();
+        }
     });
+});
 
     uploadForm.addEventListener('submit', function (e) {
         e.preventDefault();

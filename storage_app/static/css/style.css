@@ -954,83 +954,78 @@ footer {
 }
 
 /* Download progress styles */
+/* Download Progress Styles */
 .download-progress {
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  height: 20px;
   width: 100%;
-  height: 6px;
-  background-color: #f1f1f1;
-  border-radius: 3px;
-  margin-bottom: 5px;
-  display: flex;
-  align-items: center;
   position: relative;
+  margin-bottom: 5px;
+  overflow: hidden;
 }
 
 .download-progress-bar {
   height: 100%;
-  background-color: #4caf50;
-  border-radius: 3px;
-  transition: width 0.2s ease;
+  background-color: #2196F3;
   width: 0%;
+  transition: width 0.3s ease;
+  border-radius: 10px;
 }
 
 .download-progress-text {
   position: absolute;
-  right: 0;
-  top: -15px;
-  font-size: 10px;
-  color: #666;
+  right: 5px;
+  top: 0;
+  font-size: 12px;
+  line-height: 20px;
+  color: #000;
+  font-weight: bold;
 }
 
 .download-status-message {
   font-size: 12px;
-  color: #666;
-  margin-top: 2px;
+  color: #555;
+  text-align: center;
 }
 
 .download-complete {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #4caf50;
-  font-weight: 500;
+  color: #4CAF50;
+  font-weight: bold;
 }
 
-/* Smaller success checkmark for the status column */
-.success-checkmark.small {
-  width: 20px;
-  height: 20px;
+.download-complete i {
   margin-right: 5px;
 }
 
-.success-checkmark.small .check-icon {
-  width: 20px;
-  height: 20px;
+.download-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #F44336;
+  font-weight: bold;
 }
 
-.success-checkmark.small .icon-line {
-  height: 2px;
+.download-error i {
+  margin-right: 5px;
 }
 
-.success-checkmark.small .icon-circle {
-  width: 20px;
-  height: 20px;
+.retry-btn {
+  background-color: #F44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 3px 8px;
+  margin-left: 10px;
+  cursor: pointer;
+  font-size: 12px;
 }
 
-.success-checkmark.small .icon-fix {
-  width: 5px;
-  height: 20px;
-}
-
-.success-checkmark.small .line-tip {
-  width: 8px;
-  left: 4px;
-  top: 13px;
-}
-
-.success-checkmark.small .line-long {
-  width: 12px;
-  right: 3px;
-  top: 10px;
+.retry-btn:hover {
+  background-color: #D32F2F;
 }
 
 /* Profile Page Styles */
