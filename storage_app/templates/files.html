@@ -29,7 +29,7 @@
                     <label for="id_file">Choose file:</label>
                     {{ form.file }}
                 </div>
-                <button type="submit" id="upload-submit-btn" class="btn btn-primary">
+                <button type="submit" id="upload-submit-btn" class="btn btn-primary button-main">
                     <i class="fas fa-upload"></i> Upload File
                 </button>
             </form>
@@ -101,15 +101,25 @@
                         </td>
                         <td class="file-size">
                             {% if file.file_size < 1024 %}
+
                                 {{ file.file_size }} bytes
+
                             {% elif file.file_size < 1048576 %}
+
                                 {% widthratio file.file_size 1024 1 %} KB
+
                             {% elif file.file_size < 1073741824 %}
+
                                 {% widthratio file.file_size 1048576 1 %} MB
+
                             {% elif file.file_size < 1099511627776 %}
+
                                 {% widthratio file.file_size 1073741824 1 %} GB
+
                             {% else %}
+
                                 {% widthratio file.file_size 1099511627776 1 %} TB
+                                
                             {% endif %}
                         </td>
                         <td>{{ file.uploaded_at|date:"F j, Y, g:i a" }}</td>
@@ -153,6 +163,71 @@
         const uploadSubmitBtn = document.getElementById('upload-submit-btn');
         const progressText = document.querySelector('.progress-text');
         const stagesContainer = document.getElementById('upload-stages');
+        const downloadStatusContainer = document.getElementById('download-status-container');
+
+        // Add event listeners to all download buttons
+        document.querySelectorAll('.download-btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                const fileId = this.getAttribute('data-file-id');
+                const fileName = this.getAttribute('data-file-name');
+
+                // Create or update the download status element
+                const downloadStatusCell = document.getElementById(`download-status-${fileId}`);
+
+                if (downloadStatusCell) {
+                    // Show downloading status
+                    downloadStatusCell.innerHTML = `
+            <div class="download-progress">
+                <div class="download-progress-bar"></div>
+                <span class="download-progress-text">0%</span>
+            </div>
+            <div class="download-status-message">Preparing download...</div>
+            `;
+
+                    const progressBar = downloadStatusCell.querySelector('.download-progress-bar');
+                    const progressTextElement = downloadStatusCell.querySelector('.download-progress-text');
+                    const statusMessage = downloadStatusCell.querySelector('.download-status-message');
+
+                    // Simulate download progress
+                    let progress = 0;
+                    const downloadInterval = setInterval(() => {
+                        progress += 5;
+                        if (progress > 100) {
+                            clearInterval(downloadInterval);
+
+                            // Show simple completion message with icon
+                            downloadStatusCell.innerHTML = `
+                    <div class="download-complete">
+                        <i class="fas fa-check-circle"></i> Complete
+                    </div>
+                    `;
+
+                            // Clear the status after some time
+                            setTimeout(() => {
+                                downloadStatusCell.innerHTML = '';
+                            }, 10000); // 10 seconds
+
+                            return;
+                        }
+
+                        // Update progress
+                        progressBar.style.width = `${progress}%`;
+                        progressTextElement.textContent = `${progress}%`;
+
+                        // Update status message based on progress
+                        if (progress < 20) {
+                            statusMessage.textContent = 'Preparing';
+                        } else if (progress < 50) {
+                            statusMessage.textContent = 'Processing';
+                        } else if (progress < 75) {
+                            statusMessage.textContent = 'Downloading';
+                        } else {
+                            statusMessage.textContent = 'Finalizing...';
+                        }
+                    }, 200);
+                }
+            });
+        });
 
         uploadForm.addEventListener('submit', function (e) {
             e.preventDefault();
@@ -168,52 +243,52 @@
 
             // Initialize the upload stages
             stagesContainer.innerHTML = `
-            <div class="upload-stage current" id="stage-chunking">
-                <div class="stage-icon">
-                    <i class="fas fa-puzzle-piece fa-spin"></i>
-                </div>
-                <div class="stage-content">
-                    <h4>Chunking File</h4>
-                    <p>Breaking file into manageable pieces...</p>
-                </div>
+        <div class="upload-stage current" id="stage-chunking">
+            <div class="stage-icon">
+                <i class="fas fa-puzzle-piece fa-spin"></i>
             </div>
-            <div class="upload-stage" id="stage-preprocessing">
-                <div class="stage-icon">
-                    <i class="fas fa-cogs"></i>
-                </div>
-                <div class="stage-content">
-                    <h4>Preprocessing</h4>
-                    <p>Optimizing file for upload...</p>
-                </div>
+            <div class="stage-content">
+                <h4>Chunking File</h4>
+                <p>Breaking file into manageable pieces...</p>
             </div>
-            <div class="upload-stage" id="stage-checksum">
-                <div class="stage-icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <div class="stage-content">
-                    <h4>Generating Checksum</h4>
-                    <p>Verifying file integrity...</p>
-                </div>
+        </div>
+        <div class="upload-stage" id="stage-preprocessing">
+            <div class="stage-icon">
+                <i class="fas fa-cogs"></i>
             </div>
-            <div class="upload-stage" id="stage-uploading">
-                <div class="stage-icon">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                </div>
-                <div class="stage-content">
-                    <h4>Uploading to Server</h4>
-                    <p>Transferring file to storage...</p>
-                </div>
+            <div class="stage-content">
+                <h4>Preprocessing</h4>
+                <p>Optimizing file for upload...</p>
             </div>
-            <div class="upload-stage" id="stage-complete">
-                <div class="stage-icon">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stage-content">
-                    <h4>Complete</h4>
-                    <p>File successfully uploaded!</p>
-                </div>
+        </div>
+        <div class="upload-stage" id="stage-checksum">
+            <div class="stage-icon">
+                <i class="fas fa-shield-alt"></i>
             </div>
-        `;
+            <div class="stage-content">
+                <h4>Generating Checksum</h4>
+                <p>Verifying file integrity...</p>
+            </div>
+        </div>
+        <div class="upload-stage" id="stage-uploading">
+            <div class="stage-icon">
+                <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            <div class="stage-content">
+                <h4>Uploading to Server</h4>
+                <p>Transferring file to storage...</p>
+            </div>
+        </div>
+        <div class="upload-stage" id="stage-complete">
+            <div class="stage-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stage-content">
+                <h4>Complete</h4>
+                <p>File successfully uploaded!</p>
+            </div>
+        </div>
+    `;
 
             // Prepare form data
             const formData = new FormData(uploadForm);
