@@ -1490,3 +1490,193 @@ footer {
 .form-links a:hover::after {
   width: 100%;
 }
+
+
+/* Registration Form Styling */
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+  padding: 20px;
+  background-color: #f0f8ff;
+}
+
+.register-card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+  padding: 30px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.register-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
+}
+
+.register-title {
+  color: #2980b9;
+  text-align: center;
+  margin-bottom: 30px;
+  font-weight: 600;
+  font-size: 28px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #444;
+}
+
+.input-wrapper {
+  position: relative;
+  margin-bottom: 5px;
+}
+
+.input-wrapper input,
+.input-wrapper select {
+  width: 100%;
+  padding: 12px 40px 12px 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  background-color: #f5f9ff;
+  transition: all 0.3s ease;
+}
+
+.input-wrapper input:focus,
+.input-wrapper select:focus {
+  outline: none;
+  border-color: #2980b9;
+  box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.1);
+}
+
+.input-icon {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  color: #3498db;
+  transition: all 0.3s ease;
+}
+
+.input-wrapper input:focus + .input-icon,
+.input-wrapper select:focus + .input-icon {
+  transform: translateY(-50%) scale(1.1);
+  color: #2980b9;
+}
+
+.help-text {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.password-requirements {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin-top: 5px;
+  font-size: 12px;
+  color: #666;
+}
+
+.password-requirements li {
+  margin-bottom: 3px;
+}
+
+.register-btn {
+  width: 100%;
+  background-color: #2980b9;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.register-btn i {
+  margin-right: 8px;
+  transition: transform 0.3s ease;
+}
+
+.register-btn:hover {
+  background-color: #3498db;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.register-btn:hover i {
+  transform: translateX(3px);
+}
+
+.register-btn:active {
+  transform: translateY(0);
+}
+
+.creation-time {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+.form-links {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.form-links a {
+  color: #2980b9;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.form-links a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background-color: #2980b9;
+  transition: width 0.3s ease;
+}
+
+.form-links a:hover {
+  color: #3498db;
+}
+
+.form-links a:hover::after {
+  width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .register-card {
+      padding: 20px;
+  }
+  
+  .input-wrapper input,
+  .input-wrapper select {
+      padding: 10px 35px 10px 12px;
+  }
+}
