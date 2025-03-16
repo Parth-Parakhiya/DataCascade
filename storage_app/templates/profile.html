@@ -1,27 +1,89 @@
-<!-- storage_app/templates/storage_app/profile.html -->
 {% extends "index.html" %}
 {% load static %}
+
 {% block content %}
 <div class="profile-container">
-    <h2>User Profile</h2>
-    <div class="profile-details">
-        <p><strong>Username:</strong> {{ user.username }}</p>
-        <p><strong>Full Name:</strong> {{ user.first_name }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        <p><strong>Registered on:</strong> {{ user.date_joined|date:"F j, Y, g:i a" }}</p>
-        <p><strong>Last Login:</strong> 
-            {% if user.last_login %}
-                {{ user.last_login|date:"F j, Y, g:i a" }}
-            {% else %}
-                First login
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {{ user.username|slice:":1"|upper }}
+            </div>
+            <div class="profile-title">
+                <h2>{{ user.username }}</h2>
+                <p>{{ user.email }}</p>
+            </div>
+        </div>
+        <div class="profile-content">
+            <div class="info-group">
+                <h3>Personal Information</h3>
+                <div class="info-row">
+                    <div class="info-label">Username</div>
+                    <div class="info-value">{{ user.username }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Full Name</div>
+                    <div class="info-value">{{ user.first_name }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">{{ user.email }}</div>
+                </div>
+            </div>
+            
+            <div class="info-group">
+                <h3>Account Information</h3>
+                <div class="info-row">
+                    <div class="info-label">Registered on</div>
+                    <div class="info-value">{{ user.date_joined|date:"F j, Y, g:i a" }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Last Login</div>
+                    <div class="info-value">
+                        {% if user.last_login %}
+                            {{ user.last_login|date:"F j, Y, g:i a" }}
+                            <span class="activity-badge">
+                                {% if user.last_login|date:"Y-m-d" == now|date:"Y-m-d" %}
+                                    Today
+                                {% endif %}
+                            </span>
+                        {% else %}
+                            First login
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Account Status</div>
+                    <div class="info-value"><span class="activity-badge">Active</span></div>
+                </div>
+            </div>
+            
+            {% if user.userprofile %}
+            <div class="info-group">
+                <h3>Additional Information</h3>
+                <div class="info-row">
+                    <div class="info-label">Date of Birth</div>
+                    <div class="info-value">{{ user.userprofile.date_of_birth }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Gender</div>
+                    <div class="info-value">{{ user.userprofile.gender }}</div>
+                </div>
+            </div>
             {% endif %}
-        </p>
-        <!-- If you have a related UserProfile for extra fields -->
-        {% if user.userprofile %}
-            <p><strong>Date of Birth:</strong> {{ user.userprofile.date_of_birth }}</p>
-            <p><strong>Gender:</strong> {{ user.userprofile.gender }}</p>
-        {% endif %}
+            
+            <!-- You can add storage usage information or other metrics -->
+            <div class="info-group">
+                <h3>Storage Information</h3>
+                <div class="info-row">
+                    <div class="info-label">Storage Used</div>
+                    <div class="info-value">0 MB of 1 GB</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Files Uploaded</div>
+                    <div class="info-value">0</div>
+                </div>
+            </div>
+        </div>
     </div>
-    <!-- Add additional sections as needed -->
 </div>
 {% endblock %}
