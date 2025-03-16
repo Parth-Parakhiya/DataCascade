@@ -113,10 +113,6 @@ class FileChunk(models.Model):
         return matches
     
 
-
-
-
-
 class Node(models.Model):
     name = models.CharField(max_length=100)
     status = models.CharField(max_length=10)  # e.g., 'running', 'stopped'
@@ -126,9 +122,6 @@ class Node(models.Model):
     def __str__(self):
         return self.name
     
-
-
-
 
 class DataObject(models.Model):
     file_metadata = models.ForeignKey(FileMetadata, on_delete=models.CASCADE)
