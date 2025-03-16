@@ -1,243 +1,653 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
-    {% load static %}
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --card-bg: #1e1e1e;
+            --body-bg: #121212;
+            --text: #ecf0f1;
+            --text-muted: #95a5a6;
+            --border: #2c3e50;
+        }
+        
         body {
-            padding: 20px;
-            background-color: #121212;
-            color: #fff;
+            padding: 0;
+            background-color: var(--body-bg);
+            color: var(--text);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+        
+        .sidebar {
+            background-color: var(--primary);
+            height: 100vh;
+            position: fixed;
+            padding: 20px 0;
+            width: 250px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-menu {
+            padding: 0;
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu a {
+            padding: 10px 20px;
+            display: block;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: var(--secondary);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .sidebar-menu i {
+            margin-right: 10px;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        
         .card {
-            background-color: #1e1e1e;
+            background-color: var(--card-bg);
             border: none;
+            border-radius: 8px;
             margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
         }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        
         .card-header {
-            background-color: #333;
-            color: #fff;
+            background-color: var(--secondary);
+            color: var(--text);
             font-weight: bold;
-        }
-        .table {
-            color: #fff;
-        }
-        .table thead {
-            background-color: #333;
-        }
-        .table-bordered th, .table-bordered td {
-            border: 1px solid #444;
-        }
-        .status-online {
-            color: #28a745;
-            font-weight: bold;
-        }
-        .status-offline {
-            color: #dc3545;
-            font-weight: bold;
-        }
-        .alert-custom {
-            background-color: #333;
-            color: #fff;
-            border: 1px solid #dc3545;
-        }
-        .info-box {
-            background-color: #1e1e1e;
+            border-radius: 8px 8px 0 0;
             padding: 15px;
-            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .metric-card {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .metric-icon {
+            margin-right: 15px;
+            font-size: 2rem;
+            padding: 15px;
+            border-radius: 50%;
+            background-color: rgba(52, 152, 219, 0.2);
+            color: var(--accent);
+        }
+        
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--text);
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .table {
+            color: var(--text);
+            margin-bottom: 0;
+        }
+        
+        .table thead th {
+            background-color: var(--secondary);
+            color: var(--text);
+            border-color: var(--border);
+        }
+        
+        .table-bordered th, .table-bordered td {
+            border: 1px solid var(--border);
+        }
+        
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .status-online {
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        .status-offline {
+            color: var(--danger);
+            font-weight: bold;
+        }
+        
+        .alert-custom {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: var(--text);
+            border: 1px solid var(--danger);
+            border-radius: 8px;
+        }
+        
+        .pagination {
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        .page-item .page-link {
+            background-color: var(--secondary);
+            border-color: var(--border);
+            color: var(--text);
+        }
+        
+        .page-item.active .page-link {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+        
+        .page-item.disabled .page-link {
+            background-color: var(--secondary);
+            border-color: var(--border);
+            color: var(--text-muted);
+        }
+        
+        .badge {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
+        
+        .badge-online {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .badge-offline {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .page-header {
             margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
         }
-        .info-box h4 {
-            margin-bottom: 10px;
+        
+        .status-container {
+            display: flex;
+            align-items: center;
         }
-        .info-box p {
-            margin: 0;
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-indicator.online {
+            background-color: var(--success);
+        }
+        
+        .status-indicator.offline {
+            background-color: var(--danger);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .truncate {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                left: -250px;
+                transition: all 0.3s;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .toggle-sidebar {
+                display: block;
+            }
+        }
+        
+        .toggle-sidebar {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1100;
+            display: none;
+            background-color: var(--primary);
+            border: none;
+            color: var(--text);
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        
+        .navbar {
+            background-color: var(--primary);
+            padding: 0.5rem 1rem;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .dropdown-menu {
+            background-color: var(--secondary);
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .dropdown-item {
+            color: var(--text);
+        }
+        
+        .dropdown-item:hover {
+            background-color: var(--primary);
+            color: var(--text);
+        }
+        
+        .badge-pill {
+            border-radius: 10px;
+            padding: 5px 8px;
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
+    <button class="toggle-sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Admin Panel</h3>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="#"><i class="fas fa-database"></i> Buckets</a></li>
+            <li><a href="#"><i class="fas fa-file-alt"></i> Objects</a></li>
+            <li><a href="#"><i class="fas fa-users"></i> Users</a></li>
+            <li><a href="#"><i class="fas fa-server"></i> Servers</a></li>
+            <li><a href="#"><i class="fas fa-hdd"></i> Drives</a></li>
+            <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <nav class="navbar navbar-expand-lg mb-4">
+            <div class="container-fluid">
+                <a class="navbar-brand d-lg-none" href="#">Admin Panel</a>
+                <div class="ml-auto">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-user"></i> Admin
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="#"><i class="fas fa-user-circle"></i> Profile</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
         <!-- Server Status Warning -->
         {% if server_status_message %}
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="alert alert-custom alert-dismissible fade show" role="alert">
-                    <strong>Warning:</strong> {{ server_status_message }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true" class="text-white">&times;</span>
+        <div class="alert alert-custom alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <strong>Warning:</strong> {{ server_status_message }}
+            </div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true" class="text-white">&times;</span>
+            </button>
+        </div>
+        {% endif %}
+        
+        <div class="page-header">
+            <h1>Dashboard</h1>
+            <p class="text-muted">Storage system overview</p>
+        </div>
+        
+        <!-- Summary Cards -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div>
+                            <div class="metric-value">{{ server_info.buckets }}</div>
+                            <div class="metric-label">Buckets</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div>
+                            <div class="metric-value">{{ server_info.objects }}</div>
+                            <div class="metric-label">Objects</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <div class="metric-value">{{ server_info.reported_usage }}</div>
+                            <div class="metric-label">Reported Usage</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Overview -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <div>Servers</div>
+                        <div>
+                            <span class="badge badge-online">{{ server_info.servers_online }} Online</span>
+                            <span class="badge badge-offline">{{ server_info.servers_offline }} Offline</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-container">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Server URL</th>
+                                        <th class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for server in server_statuses %}
+                                    <tr>
+                                        <td>{{ server.url }}</td>
+                                        <td class="text-center">
+                                            <span class="badge {% if server.status == 'Online' %}badge-online{% else %}badge-offline{% endif %}">
+                                                {{ server.status }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <div>Drives</div>
+                        <div>
+                            <span class="badge badge-online">{{ server_info.drives_online }} Online</span>
+                            <span class="badge badge-offline">{{ server_info.drives_offline }} Offline</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-container">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Server URL</th>
+                                        <th>Drive Path</th>
+                                        <th class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for server in server_statuses %}
+                                        {% for drive in server.drives %}
+                                        <tr>
+                                            <td>{{ server.url }}</td>
+                                            <td>{{ drive.path }}</td>
+                                            <td class="text-center">
+                                                <span class="badge {% if drive.status == 'Online' %}badge-online{% else %}badge-offline{% endif %}">
+                                                    {{ drive.status }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Buckets Card -->
+        <div class="card">
+            <div class="card-header">
+                <div>Buckets</div>
+                <div>
+                    <button class="btn btn-sm btn-outline-light">
+                        <i class="fas fa-plus"></i> Add Bucket
                     </button>
                 </div>
             </div>
-        </div>
-        {% endif %}
-
-        <h1 class="text-center mb-4">Admin Dashboard</h1>
-
-        <!-- Server Information -->
-        <div class="row">
-            <div class="col-md-3">
-                <div class="info-box">
-                    <h4>Buckets</h4>
-                    <p>{{ server_info.buckets }}</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="info-box">
-                    <h4>Objects</h4>
-                    <p>{{ server_info.objects }}</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="info-box">
-                    <h4>Reported Usage</h4>
-                    <p>{{ server_info.reported_usage }}</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Server and Drive Status -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="info-box">
-                    <h4>Servers</h4>
-                    <p>Online: <span class="status-online">{{ server_info.servers_online }}</span></p>
-                    <p>Offline: <span class="status-offline">{{ server_info.servers_offline }}</span></p>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="info-box">
-                    <h4>Drives</h4>
-                    <p>Online: <span class="status-online">{{ server_info.drives_online }}</span></p>
-                    <p>Offline: <span class="status-offline">{{ server_info.drives_offline }}</span></p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Buckets and Data Objects -->
-        <div class="row">
-            <!-- Buckets Table -->
-            <div class="col-md-4">
-                <h2>Buckets</h2>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for bucket in buckets %}
-                        <tr>
-                            <td>{{ bucket.name }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Data Objects Table -->
-            <div class="col-md-8">
-                <h2>Data Objects</h2>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Bucket</th>
-                            <th>Object Name</th>
-                            <th>Size</th>
-                            <th>R/W Permission</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for obj in data_objects %}
-                        <tr>
-                            <td>{{ obj.bucket }}</td>
-                            <td>{{ obj.object_name }}</td>
-                            <td>{{ obj.size }}</td>
-                            <td>{{ obj.permission }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Users Table -->
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Users</h2>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Email</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user in users %}
-                        <tr>
-                            <td>{{ user.username }}</td>
-                            <td>{{ user.email }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Server Statuses Table -->
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Server Statuses</h2>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Server URL</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for server in server_statuses %}
-                        <tr>
-                            <td>{{ server.url }}</td>
-                            <td class="{% if server.status == 'Online' %}status-online{% else %}status-offline{% endif %}">
-                                {{ server.status }}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Drive Statuses Table -->
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Drive Statuses</h2>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Server URL</th>
-                            <th>Drive Path</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for server in server_statuses %}
-                            {% for drive in server.drives %}
+            <div class="card-body p-0">
+                <div class="table-container">
+                    <table class="table table-hover">
+                        <thead>
                             <tr>
-                                <td>{{ server.url }}</td>
-                                <td>{{ drive.path }}</td>
-                                <td class="{% if drive.status == 'Online' %}status-online{% else %}status-offline{% endif %}">
-                                    {{ drive.status }}
+                                <th>Name</th>
+                                <th class="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for bucket in buckets %}
+                            <tr>
+                                <td>{{ bucket.name }}</td>
+                                <td class="text-right">
+                                    <button class="btn btn-sm btn-outline-light">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                             {% endfor %}
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Data Objects Card with Pagination -->
+        <div class="card">
+            <div class="card-header">
+                <div>Data Objects</div>
+                <div>
+                    <div class="input-group input-group-sm" style="width: 250px;">
+                        <input type="text" class="form-control bg-dark text-light border-secondary" placeholder="Search objects...">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-light" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-container">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Bucket</th>
+                                <th>Object Name</th>
+                                <th>Size</th>
+                                <th>R/W Permission</th>
+                                <th class="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="objectsTableBody">
+                            {% for obj in data_objects %}
+                            <tr class="object-row">
+                                <td>{{ obj.bucket }}</td>
+                                <td class="truncate" title="{{ obj.object_name }}">{{ obj.object_name }}</td>
+                                <td>{{ obj.size }}</td>
+                                <td>{{ obj.permission }}</td>
+                                <td class="text-right">
+                                    <button class="btn btn-sm btn-outline-light">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <nav>
+                    <ul class="pagination" id="objectsPagination">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">
+                                <i class="fas fa-angle-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">
+                                <i class="fas fa-angle-double-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Users Card -->
+        <div class="card">
+            <div class="card-header">
+                <div>Users</div>
+                <div>
+                    <button class="btn btn-sm btn-outline-light">
+                        <i class="fas fa-plus"></i> Add User
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-container">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th class="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td class="text-right">
+                                    <button class="btn btn-sm btn-outline-light">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -246,5 +656,177 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <!-- Pagination JavaScript -->
+    <script>
+        // Pagination functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const itemsPerPage = 10;
+            const objectRows = document.querySelectorAll('.object-row');
+            const totalPages = Math.ceil(objectRows.length / itemsPerPage);
+            
+            // Initialize pagination
+            function initPagination() {
+                const pagination = document.getElementById('objectsPagination');
+                
+                // Clear existing page links except first and last navigation buttons
+                const navButtons = Array.from(pagination.querySelectorAll('.page-item')).slice(0, 2);
+                const lastNavButtons = Array.from(pagination.querySelectorAll('.page-item')).slice(-2);
+                pagination.innerHTML = '';
+                
+                // Add prev navigation buttons
+                navButtons.forEach(button => {
+                    pagination.appendChild(button);
+                });
+                
+                // Generate page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    const li = document.createElement('li');
+                    li.className = `page-item ${i === 1 ? 'active' : ''}`;
+                    
+                    const a = document.createElement('a');
+                    a.className = 'page-link';
+                    a.href = '#';
+                    a.textContent = i;
+                    a.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        showPage(i);
+                    });
+                    
+                    li.appendChild(a);
+                    pagination.appendChild(li);
+                }
+                
+                // Add next navigation buttons
+                lastNavButtons.forEach(button => {
+                    pagination.appendChild(button);
+                });
+                
+                // Set initial visibility
+                showPage(1);
+                
+                // Update navigation buttons functionality
+                updateNavButtons();
+            }
+            
+            // Show specified page
+            function showPage(pageNumber) {
+                // Hide all rows
+                objectRows.forEach(row => {
+                    row.style.display = 'none';
+                });
+                
+                // Calculate start and end indices
+                const start = (pageNumber - 1) * itemsPerPage;
+                const end = Math.min(start + itemsPerPage, objectRows.length);
+                
+                // Show rows for current page
+                for (let i = start; i < end; i++) {
+                    if (objectRows[i]) {
+                        objectRows[i].style.display = '';
+                    }
+                }
+                
+                // Update active page in pagination
+                const pageItems = document.querySelectorAll('#objectsPagination .page-item');
+                pageItems.forEach((item, index) => {
+                    // Skip first two and last two navigation buttons
+                    if (index < 2 || index >= pageItems.length - 2) return;
+                    
+                    // Calculate the page number this item represents
+                    const itemPageNumber = index - 1; // Adjusted for nav buttons
+                    
+                    if (itemPageNumber === pageNumber) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+                
+                // Update navigation buttons state
+                updateNavButtons(pageNumber);
+            }
+            
+            // Update navigation buttons state
+            function updateNavButtons(currentPage = 1) {
+                const firstPageBtn = document.querySelector('#objectsPagination .page-item:first-child');
+                const prevPageBtn = document.querySelector('#objectsPagination .page-item:nth-child(2)');
+                const nextPageBtn = document.querySelector('#objectsPagination .page-item:nth-last-child(2)');
+                const lastPageBtn = document.querySelector('#objectsPagination .page-item:last-child');
+                
+                if (currentPage === 1) {
+                    firstPageBtn.classList.add('disabled');
+                    prevPageBtn.classList.add('disabled');
+                } else {
+                    firstPageBtn.classList.remove('disabled');
+                    prevPageBtn.classList.remove('disabled');
+                }
+                
+                if (currentPage === totalPages || totalPages === 0) {
+                    nextPageBtn.classList.add('disabled');
+                    lastPageBtn.classList.add('disabled');
+                } else {
+                    nextPageBtn.classList.remove('disabled');
+                    lastPageBtn.classList.remove('disabled');
+                }
+                
+                // Add event listeners
+                if (!firstPageBtn.getAttribute('data-listener')) {
+                    firstPageBtn.setAttribute('data-listener', 'true');
+                    firstPageBtn.querySelector('a').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        if (!firstPageBtn.classList.contains('disabled')) {
+                            showPage(1);
+                        }
+                    });
+                }
+                
+                if (!prevPageBtn.getAttribute('data-listener')) {
+                    prevPageBtn.setAttribute('data-listener', 'true');
+                    prevPageBtn.querySelector('a').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        if (!prevPageBtn.classList.contains('disabled')) {
+                            showPage(currentPage - 1);
+                        }
+                    });
+                }
+                
+                if (!nextPageBtn.getAttribute('data-listener')) {
+                    nextPageBtn.setAttribute('data-listener', 'true');
+                    nextPageBtn.querySelector('a').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        if (!nextPageBtn.classList.contains('disabled')) {
+                            showPage(currentPage + 1);
+                        }
+                    });
+                }
+                
+                if (!lastPageBtn.getAttribute('data-listener')) {
+                    lastPageBtn.setAttribute('data-listener', 'true');
+                    lastPageBtn.querySelector('a').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        if (!lastPageBtn.classList.contains('disabled')) {
+                            showPage(totalPages);
+                        }
+                    });
+                }
+            }
+            
+            // Initialize pagination if we have objects
+            if (objectRows.length > 0) {
+                initPagination();
+            }
+            
+            // Mobile sidebar toggle
+            const toggleSidebarBtn = document.querySelector('.toggle-sidebar');
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            
+            toggleSidebarBtn.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                mainContent.classList.toggle('sidebar-active');
+            });
+        });
+    </script>
 </body>
 </html>
