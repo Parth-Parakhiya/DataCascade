@@ -1708,3 +1708,37 @@ footer {
 .modal-content.error {
   border-top: 4px solid #ff5252;
 }
+
+
+/* file username code */
+.greeting-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  margin-bottom: 25px;
+  overflow: hidden;
+}
+
+.greeting-card-content {
+  display: flex;
+  padding: 20px;
+  align-items: center;
+}
+
+.greeting-icon {
+  font-size: 28px;
+  color: #1e88e5;
+  margin-right: 15px;
+}
+
+.greeting-heading {
+  font-size: 20px;
+  margin: 0 0 5px 0;
+  color: #333;
+}
+
+.greeting-subtext {
+  margin: 0;
+  color: #777;
+  font-size: 14px;
+}

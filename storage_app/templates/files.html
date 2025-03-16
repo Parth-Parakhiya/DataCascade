@@ -3,11 +3,22 @@
 {% block content %}
 
 <div class="page-container">
-    <div class="page-header">
-        <h2 class="section-title">My Files</h2>
-        <p class="section-subtitle">Manage and access your uploaded documents</p>
+    <div class="greeting-card">
+        <div class="greeting-card-content">
+            <div class="greeting-icon">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="greeting-text-container">
+                <h2 class="greeting-heading">Hello, {{ user.username }}!</h2>
+                <p class="greeting-subtext">Welcome to your personal storage space</p>
+            </div>
+        </div>
     </div>
 
+    <!-- <div class="page-header">
+        <h2 class="section-title">My Files</h2>
+        <p class="section-subtitle">Manage and access your uploaded documents</p>
+    </div> -->
     <!-- File upload card -->
     <div class="upload-card">
         <div class="upload-card-header">
