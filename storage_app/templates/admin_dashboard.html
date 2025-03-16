@@ -1,250 +1,977 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
-    {% load static %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataCascade Admin Dashboard</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2980b9;
+            --accent: #00e5ff;
+            --dark: #121212;
+            --dark-card: #1e1e1e;
+            --darker: #0a0a0a;
+            --light-text: #ffffff;
+            --light-gray: #aaaaaa;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+        }
+
         body {
-            padding: 20px;
-            background-color: #121212;
-            color: #fff;
+            background-color: var(--dark);
+            color: var(--light-text);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
         }
-        .card {
-            background-color: #1e1e1e;
-            border: none;
+
+        .sidebar {
+            background-color: var(--darker);
+            height: 100vh;
+            position: fixed;
+            padding-top: 20px;
+            width: 250px;
+            transition: all 0.3s;
+            z-index: 1;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .logo {
+            color: var(--primary);
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 30px 0;
+        }
+
+        .sidebar-menu li {
+            padding: 10px 20px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu li a {
+            color: var(--light-text);
+            display: block;
+            text-decoration: none;
+        }
+
+        .sidebar-menu li:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-left: 3px solid var(--primary);
+        }
+
+        .sidebar-menu li.active {
+            background-color: rgba(52, 152, 219, 0.2);
+            border-left: 3px solid var(--primary);
+        }
+
+        .sidebar-menu li i {
+            margin-right: 10px;
+        }
+
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: var(--darker);
             margin-bottom: 20px;
+            border-radius: 10px;
         }
-        .card-header {
-            background-color: #333;
-            color: #fff;
-            font-weight: bold;
+
+        .user-info {
+            display: flex;
+            align-items: center;
         }
-        .table {
-            color: #fff;
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
         }
-        .table thead {
-            background-color: #333;
-        }
-        .table-bordered th, .table-bordered td {
-            border: 1px solid #444;
-        }
-        .status-online {
-            color: #28a745;
-            font-weight: bold;
-        }
-        .status-offline {
-            color: #dc3545;
-            font-weight: bold;
-        }
-        .alert-custom {
-            background-color: #333;
-            color: #fff;
-            border: 1px solid #dc3545;
-        }
-        .info-box {
-            background-color: #1e1e1e;
-            padding: 15px;
-            border-radius: 5px;
+
+        .info-card {
+            background-color: var(--dark-card);
+            border-radius: 10px;
+            padding: 20px;
             margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
-        .info-box h4 {
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .info-card h3 {
+            margin-top: 0;
+            font-size: 18px;
+            color: var(--primary);
+        }
+
+        .info-card .value {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .info-card .icon {
+            float: right;
+            font-size: 48px;
+            opacity: 0.2;
+            color: var(--primary);
+        }
+
+        .status-card {
+            background-color: var(--dark-card);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-card h3 {
+            margin-top: 0;
+            font-size: 18px;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 10px;
         }
-        .info-box p {
-            margin: 0;
+
+        .table-card {
+            background-color: var(--dark-card);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        .table-card h3 {
+            margin-top: 0;
+            font-size: 18px;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .custom-table {
+            width: 100%;
+            color: var(--light-text);
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .custom-table th {
+            background-color: var(--darker);
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .custom-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .custom-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .custom-table tr:hover td {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .status-online {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: var(--success);
+        }
+
+        .status-offline {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: var(--danger);
+        }
+
+        .status-warning {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: var(--warning);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: var(--darker);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--primary);
+        }
+
+        .warning-banner {
+            background-color: rgba(220, 53, 69, 0.1);
+            border-left: 4px solid var(--danger);
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            border-radius: 5px;
+        }
+
+        .warning-banner i {
+            color: var(--danger);
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 300px;
+        }
+
+        .data-objects-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .search-bar {
+            background-color: var(--darker);
+            border: none;
+            color: var(--light-text);
+            padding: 8px 15px;
+            border-radius: 20px;
+            width: 250px;
+        }
+
+        .action-buttons button {
+            background-color: var(--darker);
+            border: none;
+            color: var(--light-text);
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin-left: 10px;
+        }
+
+        .action-buttons button:hover {
+            background-color: var(--primary);
+        }
+
+        .hash-id {
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .chunk-size {
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .truncate {
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            background-color: var(--darker);
+            border: none;
+            color: var(--light-text);
+            padding: 8px 12px;
+            margin-left: 5px;
+            border-radius: 5px;
+        }
+
+        .pagination button.active {
+            background-color: var(--primary);
+        }
+
+        /* Media Queries */
+        @media (max-width: 991px) {
+            .sidebar {
+                width: 70px;
+            }
+            .sidebar .logo {
+                display: none;
+            }
+            .sidebar-menu li span {
+                display: none;
+            }
+            .sidebar-menu li {
+                text-align: center;
+            }
+            .sidebar-menu li i {
+                margin-right: 0;
+                font-size: 20px;
+            }
+            .content {
+                margin-left: 70px;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .content {
+                margin-left: 0;
+            }
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+            }
+            .show-sidebar {
+                width: 200px;
+            }
+        }
+
+        /* Animation */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulsing {
+            animation: pulse 2s infinite;
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <!-- Server Status Warning -->
-        {% if server_status_message %}
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="alert alert-custom alert-dismissible fade show" role="alert">
-                    <strong>Warning:</strong> {{ server_status_message }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true" class="text-white">&times;</span>
-                    </button>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">DataCascade</div>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="active"><a href="#"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+            <li><a href="#"><i class="fas fa-database"></i> <span>Buckets</span></a></li>
+            <li><a href="#"><i class="fas fa-file"></i> <span>Data Objects</span></a></li>
+            <li><a href="#"><i class="fas fa-server"></i> <span>Servers</span></a></li>
+            <li><a href="#"><i class="fas fa-hdd"></i> <span>Drives</span></a></li>
+            <li><a href="#"><i class="fas fa-users"></i> <span>Users</span></a></li>
+            <li><a href="#"><i class="fas fa-chart-bar"></i> <span>Analytics</span></a></li>
+            <li><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div>
+                <h1>Admin Dashboard</h1>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <div>Admin</div>
+                    <small>System Administrator</small>
                 </div>
             </div>
         </div>
-        {% endif %}
 
-        <h1 class="text-center mb-4">Admin Dashboard</h1>
+        <!-- Warning Banner -->
+        <div class="warning-banner">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+                <strong>Warning:</strong> Some servers are experiencing high load. Please check the server status.
+            </div>
+        </div>
 
-        <!-- Server Information -->
+        <!-- Overview Cards -->
         <div class="row">
             <div class="col-md-3">
-                <div class="info-box">
-                    <h4>Buckets</h4>
-                    <p>{{ server_info.buckets }}</p>
+                <div class="info-card">
+                    <i class="fas fa-database icon"></i>
+                    <h3>Buckets</h3>
+                    <div class="value">1</div>
+                    <div>Total Storage Buckets</div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="info-box">
-                    <h4>Objects</h4>
-                    <p>{{ server_info.objects }}</p>
+                <div class="info-card">
+                    <i class="fas fa-file icon"></i>
+                    <h3>Objects</h3>
+                    <div class="value">41</div>
+                    <div>Total Data Objects</div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="info-box">
-                    <h4>Reported Usage</h4>
-                    <p>{{ server_info.reported_usage }}</p>
+                <div class="info-card">
+                    <i class="fas fa-chart-pie icon"></i>
+                    <h3>Reported Usage</h3>
+                    <div class="value">3.25 GiB</div>
+                    <div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 35%;"></div>
+                        </div>
+                        <small>35% of quota</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-card">
+                    <i class="fas fa-clock icon"></i>
+                    <h3>Uptime</h3>
+                    <div class="value">99.9%</div>
+                    <div>Last 30 days</div>
                 </div>
             </div>
         </div>
 
-        <!-- Server and Drive Status -->
+        <!-- Status Cards -->
         <div class="row">
             <div class="col-md-6">
-                <div class="info-box">
-                    <h4>Servers</h4>
-                    <p>Online: <span class="status-online">{{ server_info.servers_online }}</span></p>
-                    <p>Offline: <span class="status-offline">{{ server_info.servers_offline }}</span></p>
+                <div class="status-card">
+                    <h3><i class="fas fa-server"></i> Servers Status</h3>
+                    <div class="status-item">
+                        <div>
+                            <span class="status-badge status-online">5 Online</span>
+                        </div>
+                        <div>
+                            <span class="status-badge status-offline">0 Offline</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 100%;"></div>
+                    </div>
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="info-box">
-                    <h4>Drives</h4>
-                    <p>Online: <span class="status-online">{{ server_info.drives_online }}</span></p>
-                    <p>Offline: <span class="status-offline">{{ server_info.drives_offline }}</span></p>
+                <div class="status-card">
+                    <h3><i class="fas fa-hdd"></i> Drives Status</h3>
+                    <div class="status-item">
+                        <div>
+                            <span class="status-badge status-online">5 Online</span>
+                        </div>
+                        <div>
+                            <span class="status-badge status-offline">0 Offline</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 100%;"></div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- Buckets and Data Objects -->
+    
+        <!-- Data Objects Table -->
+        <div class="table-card">
+            <div class="data-objects-header">
+                <h3><i class="fas fa-file"></i> Data Objects</h3>
+                <div class="d-flex">
+                    <input type="text" class="search-bar" placeholder="Search objects...">
+                    <div class="action-buttons">
+                        <button><i class="fas fa-filter"></i> Filter</button>
+                        <button><i class="fas fa-download"></i> Export</button>
+                    </div>
+                </div>
+            </div>
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Bucket</th>
+                        <th>Object Name</th>
+                        <th>Size</th>
+                        <th>Permission</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>file-chunks</td>
+                        <td class="hash-id">01671793d8be6451cb912ab23f7902bfa_1742134048/chunk_0</td>
+                        <td class="chunk-size">121668 bytes</td>
+                        <td>R/W</td>
+                        <td><span class="status-badge status-online">Active</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-dark"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-dark"><i class="fas fa-download"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>file-chunks</td>
+                        <td class="hash-id">17df3bb57eb34cddb266e2dc8d4e8b7c_1742068807/chunk_0</td>
+                        <td class="chunk-size">121668 bytes</td>
+                        <td>R/W</td>
+                        <td><span class="status-badge status-online">Active</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-dark"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-dark"><i class="fas fa-download"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>file-chunks</td>
+                        <td class="hash-id">180cf348ab344e3a1ef771053fe4efe_1742074492/chunk_0</td>
+                        <td class="chunk-size">121668 bytes</td>
+                        <td>R/W</td>
+                        <td><span class="status-badge status-online">Active</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-dark"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-dark"><i class="fas fa-download"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>file-chunks</td>
+                        <td class="hash-id">5a66496082e407d8c8b161ecce70739_1742134768/chunk_0</td>
+                        <td class="chunk-size">121668 bytes</td>
+                        <td>R/W</td>
+                        <td><span class="status-badge status-online">Active</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-dark"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-dark"><i class="fas fa-download"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>file-chunks</td>
+                        <td class="hash-id">867111115af4520bd051443de0bd42_1742075674/chunk_0</td>
+                        <td class="chunk-size">10485760 bytes</td>
+                        <td>R/W</td>
+                        <td><span class="status-badge status-online">Active</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-dark"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-dark"><i class="fas fa-download"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="pagination">
+                <button><i class="fas fa-chevron-left"></i></button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    
+        <!-- Two Column Layout -->
         <div class="row">
             <!-- Buckets Table -->
             <div class="col-md-4">
-                <h2>Buckets</h2>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for bucket in buckets %}
-                        <tr>
-                            <td>{{ bucket.name }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Data Objects Table -->
-            <div class="col-md-8">
-                <h2>Data Objects</h2>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Bucket</th>
-                            <th>Object Name</th>
-                            <th>Size</th>
-                            <th>R/W Permission</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for obj in data_objects %}
-                        <tr>
-                            <td>{{ obj.bucket }}</td>
-                            <td>{{ obj.object_name }}</td>
-                            <td>{{ obj.size }}</td>
-                            <td>{{ obj.permission }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Users Table -->
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Users</h2>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Email</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user in users %}
-                        <tr>
-                            <td>{{ user.username }}</td>
-                            <td>{{ user.email }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Server Statuses Table -->
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Server Statuses</h2>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Server URL</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for server in server_statuses %}
-                        <tr>
-                            <td>{{ server.url }}</td>
-                            <td class="{% if server.status == 'Online' %}status-online{% else %}status-offline{% endif %}">
-                                {{ server.status }}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Drive Statuses Table -->
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Drive Statuses</h2>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Server URL</th>
-                            <th>Drive Path</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for server in server_statuses %}
-                            {% for drive in server.drives %}
+                <div class="table-card">
+                    <h3><i class="fas fa-database"></i> Buckets</h3>
+                    <table class="custom-table">
+                        <thead>
                             <tr>
-                                <td>{{ server.url }}</td>
-                                <td>{{ drive.path }}</td>
-                                <td class="{% if drive.status == 'Online' %}status-online{% else %}status-offline{% endif %}">
-                                    {{ drive.status }}
+                                <th>Name</th>
+                                <th>Objects</th>
+                                <th>Size</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>file-chunks</td>
+                                <td>41</td>
+                                <td>3.25 GiB</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+    
+            <!-- Users Table -->
+            <div class="col-md-8">
+                <div class="table-card">
+                    <h3><i class="fas fa-users"></i> Users</h3>
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Last Login</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>sanket</td>
+                                <td>sanketkothiya50@gmail.com</td>
+                                <td><span class="status-badge status-online">Active</span></td>
+                                <td>Just now</td>
+                                <td>
+                                    <button class="btn btn-sm btn-dark"><i class="fas fa-user-edit"></i></button>
+                                    <button class="btn btn-sm btn-dark"><i class="fas fa-key"></i></button>
                                 </td>
                             </tr>
-                            {% endfor %}
-                        {% endfor %}
-                    </tbody>
-                </table>
+                            <tr>
+                                <td>sanketkothiya</td>
+                                <td>sanketkothiya50@gmail.com</td>
+                                <td><span class="status-badge status-online">Active</span></td>
+                                <td>5 hours ago</td>
+                                <td>
+                                    <button class="btn btn-sm btn-dark"><i class="fas fa-user-edit"></i></button>
+                                    <button class="btn btn-sm btn-dark"><i class="fas fa-key"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+    
+        <!-- Server Status -->
+        <div class="table-card">
+            <h3><i class="fas fa-server"></i> Server Statuses</h3>
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Server URL</th>
+                        <th>Status</th>
+                        <th>CPU</th>
+                        <th>Memory</th>
+                        <th>Disk</th>
+                        <th>Network</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>http://localhost:9000</td>
+                        <td><span class="status-badge status-online">Online</span></td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 35%;"></div>
+                            </div>
+                            <small>35%</small>
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 42%;"></div>
+                            </div>
+                            <small>42%</small>
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 28%;"></div>
+                            </div>
+                            <small>28%</small>
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 15%;"></div>
+                            </div>
+                            <small>15%</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>http://localhost:9002</td>
+                        <td><span class="status-badge status-online">Online</span></td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 21%;"></div>
+                            </div>
+                            <small>21%</small>
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 35%;"></div>
+                            </div>
+                            <small>35%</small>
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 25%;"></div>
+                            </div>
+                            <small>25%</small>
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 19%;"></div>
+                            </div>
+                            <small>19%</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>http://localhost:9004</td>
+                        <td><span class="status-badge status-online">Online</span></td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 45%;"></div>
+                            </div>
+                            <small>45%</small>
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 30%;"></div>
+                            </div>
+                            <small>30%</small>
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 22%;"></div>
+                            </div>
+                            <small>22%</small>
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 25%;"></div>
+                            </div>
+                            <small>25%</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>http://localhost:9006</td>
+                        <td><span class="status-badge status-online">Online</span></td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 28%;"></div>
+                            </div>
+                            <small>28%</small>
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 38%;"></div>
+                            </div>
+                            <small>38%</small>
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 18%;"></div>
+                            </div>
+                            <small>18%</small>
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 13%;"></div>
+                            </div>
+                            <small>13%</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>http://localhost:9008</td>
+                        <td><span class="status-badge status-online">Online</span></td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 19%;"></div>
+                            </div>
+                            <small>19%</small>
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 25%;"></div>
+                            </div>
+                            <small>25%</small>
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 15%;"></div>
+                            </div>
+                            <small>15%</small>
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 10%;"></div>
+                            </div>
+                            <small>10%</small>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    
+        <!-- Drive Statuses -->
+        <div class="table-card">
+            <h3><i class="fas fa-hdd"></i> Drive Statuses</h3>
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Server URL</th>
+                        <th>Drive Path</th>
+                        <th>Status</th>
+                        <th>Capacity</th>
+                        <th>Used</th>
+                        <th>Available</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>http://localhost:9000</td>
+                        <td>Unknown</td>
+                        <td><span class="status-badge status-online">Online</span></td>
+                        <td>1 TB</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 35%;"></div>
+                            </div>
+                            <small>35% (350 GB)</small>
+                        </td>
+                        <td>650 GB</td>
+                    </tr>
+                    <tr>
+                        <td>http://localhost:9002</td>
+                        <td>Unknown</td>
+                        <td><span class="status-badge status-online">Online</span></td>
+                        <td>1 TB</td>
+                    <td>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 28%;"></div>
+                        </div>
+                        <small>28% (280 GB)</small>
+                    </td>
+                    <td>720 GB</td>
+                </tr>
+                <tr>
+                    <td>http://localhost:9004</td>
+                    <td>Unknown</td>
+                    <td><span class="status-badge status-online">Online</span></td>
+                    <td>1 TB</td>
+                    <td>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 42%;"></div>
+                        </div>
+                        <small>42% (420 GB)</small>
+                    </td>
+                    <td>580 GB</td>
+                </tr>
+                <tr>
+                    <td>http://localhost:9006</td>
+                    <td>Unknown</td>
+                    <td><span class="status-badge status-online">Online</span></td>
+                    <td>1 TB</td>
+                    <td>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 31%;"></div>
+                        </div>
+                        <small>31% (310 GB)</small>
+                    </td>
+                    <td>690 GB</td>
+                </tr>
+                <tr>
+                    <td>http://localhost:9008</td>
+                    <td>Unknown</td>
+                    <td><span class="status-badge status-online">Online</span></td>
+                    <td>1 TB</td>
+                    <td>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 24%;"></div>
+                        </div>
+                        <small>24% (240 GB)</small>
+                    </td>
+                    <td>760 GB</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
+</div>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    // Toggle sidebar on mobile
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleSidebar = document.createElement('button');
+        toggleSidebar.innerHTML = '<i class="fas fa-bars"></i>';
+        toggleSidebar.style.position = 'fixed';
+        toggleSidebar.style.top = '10px';
+        toggleSidebar.style.left = '10px';
+        toggleSidebar.style.zIndex = '999';
+        toggleSidebar.style.display = 'none';
+        toggleSidebar.style.backgroundColor = 'var(--primary)';
+        toggleSidebar.style.border = 'none';
+        toggleSidebar.style.borderRadius = '5px';
+        toggleSidebar.style.padding = '10px';
+        toggleSidebar.style.color = 'white';
+        
+        document.body.appendChild(toggleSidebar);
+        
+        const sidebar = document.querySelector('.sidebar');
+        const content = document.querySelector('.content');
+        
+        function checkWidth() {
+            if (window.innerWidth <= 767) {
+                toggleSidebar.style.display = 'block';
+                sidebar.style.width = '0';
+                content.style.marginLeft = '0';
+            } else {
+                toggleSidebar.style.display = 'none';
+                sidebar.style.width = window.innerWidth <= 991 ? '70px' : '250px';
+                content.style.marginLeft = window.innerWidth <= 991 ? '70px' : '250px';
+            }
+        }
+        
+        window.addEventListener('resize', checkWidth);
+        checkWidth();
+        
+        toggleSidebar.addEventListener('click', function() {
+            if (sidebar.style.width === '0px') {
+                sidebar.style.width = '200px';
+            } else {
+                sidebar.style.width = '0px';
+            }
+        });
+    });
+    
+    // Simulate live data updates
+    setInterval(() => {
+        const progressBars = document.querySelectorAll('.progress');
+        progressBars.forEach(bar => {
+            let currentWidth = parseInt(bar.style.width);
+            let change = Math.random() * 6 - 3; // Random change between -3% and +3%
+            let newWidth = Math.max(5, Math.min(95, currentWidth + change));
+            bar.style.width = newWidth + '%';
+            
+            const smallElement = bar.parentElement.nextElementSibling;
+            if (smallElement && smallElement.tagName === 'SMALL') {
+                // Update percentage text if there's a small element
+                if (smallElement.textContent.includes('GB')) {
+                    const totalGB = parseInt(smallElement.textContent.split('(')[1]);
+                    smallElement.textContent = Math.round(newWidth) + '% (' + Math.round(newWidth * 10) + ' GB)';
+                } else {
+                    smallElement.textContent = Math.round(newWidth) + '%';
+                }
+            }
+        });
+    }, 5000); // Update every 5 seconds
+</script>
