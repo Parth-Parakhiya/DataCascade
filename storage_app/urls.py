@@ -16,7 +16,9 @@ urlpatterns = [
     path('logout/', views.user_logout, name='logout'),
     path('files/', views.files_view, name='files'),
     path('download/<str:file_id>/', views.download_file_view, name='download_file'),
+    path('delete/<str:file_id>/', views.delete_file, name='delete_file'),
     path('admin_dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('ajax-files/', views.ajax_files_view, name='ajax_files'),
 
 
 

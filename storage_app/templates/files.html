@@ -1,7 +1,7 @@
 {% extends "index.html" %}
 {% load static %}
-{% block content %}
 
+{% block content %}
 <div class="page-container">
     <div class="greeting-card">
         <div class="greeting-card-content">
@@ -15,18 +15,13 @@
         </div>
     </div>
 
-    <!-- <div class="page-header">
-        <h2 class="section-title">My Files</h2>
-        <p class="section-subtitle">Manage and access your uploaded documents</p>
-    </div> -->
-    <!-- File upload card -->
     <div class="upload-card">
         <div class="upload-card-header">
             <i class="fas fa-cloud-upload-alt feature-icon"></i>
             <h3>Upload New File</h3>
         </div>
         <div class="upload-card-body">
-            <form id="upload-form" method="post" enctype="multipart/form-data">
+            <form id="upload-form" method="post" enctype="multipart/form-data" action="{% url 'files' %}">
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="id_file_name">File name:</label>
@@ -38,7 +33,14 @@
                 </div>
                 <div class="form-group file-input-group">
                     <label for="id_file">Choose file:</label>
-                    {{ form.file }}
+                    <div>
+                        <input type="file" name="file" id="id_file" required />
+                        <label for="id_file" class="custom-file-upload">
+                            <i class="fas fa-cloud-upload-alt"></i> 
+                            Select File
+                        </label>
+                        <span class="file-selected"></span>
+                    </div>
                 </div>
                 <button type="submit" id="upload-submit-btn" class="btn btn-primary button-main">
                     <i class="fas fa-upload"></i> Upload File
@@ -47,50 +49,12 @@
         </div>
     </div>
 
-    <!-- Download Progress Tracking -->
-    <div id="download-status-container" class="status-container">
-        <!-- Download statuses will be dynamically added here -->
-    </div>
-
-    <!-- Upload Progress Modal -->
-    <div id="upload-progress-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3><i class="fas fa-cloud-upload-alt"></i> File Upload Process</h3>
-
-            <div class="progress-container">
-                <div class="progress">
-                    <div id="upload-progress-bar" class="progress-bar" role="progressbar"></div>
-                </div>
-                <div class="progress-text">0%</div>
-            </div>
-
-            <p id="upload-status-message" class="status-message">Preparing upload...</p>
-
-            <!-- Upload Stages -->
-            <div id="upload-stages" class="upload-stages">
-                <!-- Stages will be dynamically inserted here -->
-            </div>
-
-            <!-- Success Animation (hidden by default) -->
-            <div id="completion-animation" class="completion-animation">
-                <div class="success-checkmark">
-                    <div class="check-icon">
-                        <span class="icon-line line-tip"></span>
-                        <span class="icon-line line-long"></span>
-                        <div class="icon-circle"></div>
-                        <div class="icon-fix"></div>
-                    </div>
-                </div>
-                <p>Upload successful!</p>
-            </div>
-        </div>
-    </div>
-    <!-- Files Table -->
     <div class="files-table-container">
-        {% if files %}
+        {% if page_obj.paginator.count > 0 %}
         <div class="files-count">
-            <span>{{ files|length }} file{% if files|length != 1 %}s{% endif %} found</span>
+            <span>{{ page_obj.paginator.count }} file{% if page_obj.paginator.count != 1 %}s{% endif %} found</span>
         </div>
+        
         <div class="table-responsive">
             <table class="files-table">
                 <thead>
@@ -104,33 +68,81 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for file in files %}
+                    {% for file in page_obj %}
                     <tr>
                         <td class="file-name">
-                            <i class="fas fa-file-alt file-icon"></i>
+                            {% if file.file_name|lower|slice:"-4:" == ".pdf" %}
+                                <i class="fas fa-file-pdf file-icon" style="color: #e74c3c;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".zip" %}
+                                <i class="fas fa-file-archive file-icon" style="color: #f39c12;"></i>
+                            {% elif file.file_name|lower|slice:"-5:" == ".docx" %}
+                                <i class="fas fa-file-word file-icon" style="color: #2980b9;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".doc" %}
+                                <i class="fas fa-file-word file-icon" style="color: #2980b9;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" in ".png.jpg.jpeg.gif.bmp" %}
+                                <i class="fas fa-file-image file-icon" style="color: #27ae60;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".txt" %}
+                                <i class="fas fa-file-alt file-icon" style="color: #3498db;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".csv" %}
+                                <i class="fas fa-file-csv file-icon" style="color: #e67e22;"></i>
+                            {% elif file.file_name|lower|slice:"-5:" == ".xlsx" %}
+                                <i class="fas fa-file-excel file-icon" style="color: #2ecc71;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".xls" %}
+                                <i class="fas fa-file-excel file-icon" style="color: #2ecc71;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".mp3" %}
+                                <i class="fas fa-file-audio file-icon" style="color: #9b59b6;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".wav" %}
+                                <i class="fas fa-file-audio file-icon" style="color: #9b59b6;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".mp4" %}
+                                <i class="fas fa-file-video file-icon" style="color: #34495e;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".avi" %}
+                                <i class="fas fa-file-video file-icon" style="color: #34495e;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".mkv" %}
+                                <i class="fas fa-file-video file-icon" style="color: #34495e;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".mov" %}
+                                <i class="fas fa-file-video file-icon" style="color: #34495e;"></i>
+                            {% elif file.file_name|lower|slice:"-5:" == ".webm" %}
+                                <i class="fas fa-file-video file-icon" style="color: #34495e;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".rar" %}
+                                <i class="fas fa-file-archive file-icon" style="color: #f39c12;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".7z" %}
+                                <i class="fas fa-file-archive file-icon" style="color: #f39c12;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".psd" %}
+                                <i class="fas fa-file-image file-icon" style="color: #27ae60;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".ai" %}
+                                <i class="fas fa-file-image file-icon" style="color: #27ae60;"></i>
+                            {% elif file.file_name|lower|slice:"-5:" == ".pptx" %}
+                                <i class="fas fa-file-powerpoint file-icon" style="color: #d35400;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".ppt" %}
+                                <i class="fas fa-file-powerpoint file-icon" style="color: #d35400;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".json" %}
+                                <i class="fas fa-file-code file-icon" style="color: #1abc9c;"></i>
+                            {% elif file.file_name|lower|slice:"-3:" == ".py" %}
+                                <i class="fas fa-file-code file-icon" style="color: #1abc9c;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".xml" %}
+                                <i class="fas fa-file-code file-icon" style="color: #1abc9c;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".html" %}
+                                <i class="fas fa-file-code file-icon" style="color: #1abc9c;"></i>
+                            {% elif file.file_name|lower|slice:"-3:" == ".js" %}
+                                <i class="fas fa-file-code file-icon" style="color: #1abc9c;"></i>
+                            {% elif file.file_name|lower|slice:"-4:" == ".css" %}
+                                <i class="fas fa-file-code file-icon" style="color: #1abc9c;"></i>
+                            {% else %}
+                                <i class="fas fa-file-alt file-icon" style="color: #7f8c8d;"></i>
+                            {% endif %}
                             {{ file.file_name }}
                         </td>
                         <td class="file-size">
                             {% if file.file_size < 1024 %}
-
                                 {{ file.file_size }} bytes
-
                             {% elif file.file_size < 1048576 %}
-
                                 {% widthratio file.file_size 1024 1 %} KB
-
                             {% elif file.file_size < 1073741824 %}
-
                                 {% widthratio file.file_size 1048576 1 %} MB
-
                             {% elif file.file_size < 1099511627776 %}
-
                                 {% widthratio file.file_size 1073741824 1 %} GB
-
                             {% else %}
-
                                 {% widthratio file.file_size 1099511627776 1 %} TB
-                                
                             {% endif %}
                         </td>
                         <td>{{ file.uploaded_at|date:"F j, Y, g:i a" }}</td>
@@ -142,11 +154,21 @@
                             {% endif %}
                         </td>
                         <td>
-                            <a href="{% url 'download_file' file_id=file.file_id %}"
-                                class="btn btn-primary download-btn button-main" data-file-id="{{ file.file_id }}"
-                                data-file-name="{{ file.file_name }}" download>
-                                <i class="fas fa-download"></i> Download
-                            </a>
+                            <div class="file-actions">
+                                <a href="{% url 'download_file' file_id=file.file_id %}"
+                                    class="btn btn-primary download-btn button-main" 
+                                    data-file-id="{{ file.file_id }}" 
+                                    data-file-name="{{ file.file_name }}" 
+                                    download>
+                                    <i class="fas fa-download"></i> Download
+                                </a>
+                                <a href="{% url 'delete_file' file_id=file.file_id %}"
+                                    class="btn btn-danger delete-btn" 
+                                    data-file-id="{{ file.file_id }}" 
+                                    data-file-name="{{ file.file_name }}">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </div>
                         </td>
                         <td>
                             <div id="download-status-{{ file.file_id }}" class="download-status"></div>
@@ -155,6 +177,28 @@
                     {% endfor %}
                 </tbody>
             </table>
+
+            <div class="pagination">
+                <ul class="step-links">
+                    {% if page_obj.has_previous %}
+                        <li><a href="{% url 'ajax_files' %}?page=1">&laquo;</a></li>
+                        <li><a href="{% url 'ajax_files' %}?page={{ page_obj.previous_page_number }}">&lsaquo;</a></li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="active"><span>{{ num }}</span></li>
+                        {% else %}
+                            <li><a href="{% url 'ajax_files' %}?page={{ num }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li><a href="{% url 'ajax_files' %}?page={{ page_obj.next_page_number }}">&rsaquo;</a></li>
+                        <li><a href="{% url 'ajax_files' %}?page={{ page_obj.paginator.num_pages }}">&raquo;</a></li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
         {% else %}
         <div class="no-files">
@@ -175,87 +219,116 @@
     const progressText = document.querySelector('.progress-text');
     const stagesContainer = document.getElementById('upload-stages');
     const downloadStatusContainer = document.getElementById('download-status-container');
-
-    // Add event listeners to all download buttons
-    // Add event listeners to all download buttons
-document.querySelectorAll('.download-btn').forEach(btn => {
-    btn.addEventListener('click', function (e) {
-        const fileId = this.getAttribute('data-file-id');
-        const fileName = this.getAttribute('data-file-name');
-
-        // Create or update the download status element
-        const downloadStatusCell = document.getElementById(`download-status-${fileId}`);
-
-        if (downloadStatusCell) {
-            // Show downloading status
-            downloadStatusCell.innerHTML = `
-                <div class="download-progress">
-                    <div class="download-progress-bar"></div>
-                    <span class="download-progress-text">0%</span>
-                </div>
-                <div class="download-status-message">Preparing download...</div>
-            `;
-
-            const progressBar = downloadStatusCell.querySelector('.download-progress-bar');
-            const progressTextElement = downloadStatusCell.querySelector('.download-progress-text');
-            const statusMessage = downloadStatusCell.querySelector('.download-status-message');
-
-            // Start the actual download
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', this.href, true);
-            xhr.responseType = 'blob';
-            
-            // Track download progress
-            xhr.onprogress = function(event) {
-                if (event.lengthComputable) {
-                    const progress = Math.round((event.loaded / event.total) * 100);
-                    
-                    // Update progress
-                    progressBar.style.width = `${progress}%`;
-                    progressTextElement.textContent = `${progress}%`;
-
-                    // Update status message based on progress
-                    if (progress < 20) {
-                        statusMessage.textContent = 'Preparing';
-                    } else if (progress < 50) {
-                        statusMessage.textContent = 'Processing';
-                    } else if (progress < 95) {
-                        statusMessage.textContent = 'Downloading';
-                    } else {
-                        statusMessage.textContent = 'Finalizing...';
+    const fileInput = document.getElementById('id_file');
+    const fileSelected = document.querySelector('.file-selected');
+    
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                fileSelected.textContent = this.files[0].name;
+            } else {
+                fileSelected.textContent = '';
+            }
+        })
+        
+    document.querySelectorAll('.download-btn').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            const fileId = this.getAttribute('data-file-id');
+            const fileName = this.getAttribute('data-file-name');
+    
+            // Create or update the download status element
+            const downloadStatusCell = document.getElementById(`download-status-${fileId}`);
+    
+            if (downloadStatusCell) {
+                // Show downloading status
+                downloadStatusCell.innerHTML = `
+                    <div class="download-progress">
+                        <div class="download-progress-bar"></div>
+                        <span class="download-progress-text">0%</span>
+                    </div>
+                    <div class="download-status-message">Preparing download...</div>
+                `;
+    
+                const progressBar = downloadStatusCell.querySelector('.download-progress-bar');
+                const progressTextElement = downloadStatusCell.querySelector('.download-progress-text');
+                const statusMessage = downloadStatusCell.querySelector('.download-status-message');
+    
+                // Start the actual download
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', this.href, true);
+                xhr.responseType = 'blob';
+                
+                // Track download progress
+                xhr.onprogress = function(event) {
+                    if (event.lengthComputable) {
+                        const progress = Math.round((event.loaded / event.total) * 100);
+                        
+                        // Update progress
+                        progressBar.style.width = `${progress}%`;
+                        progressTextElement.textContent = `${progress}%`;
+    
+                        // Update status message based on progress
+                        if (progress < 20) {
+                            statusMessage.textContent = 'Preparing';
+                        } else if (progress < 50) {
+                            statusMessage.textContent = 'Processing';
+                        } else if (progress < 95) {
+                            statusMessage.textContent = 'Downloading';
+                        } else {
+                            statusMessage.textContent = 'Finalizing...';
+                        }
                     }
-                }
-            };
-
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    // Download completed successfully
-                    // Show completion message with icon
-                    downloadStatusCell.innerHTML = `
-                        <div class="download-complete">
-                            <i class="fas fa-check-circle"></i> Complete
-                        </div>
-                    `;
-
-                    // Create download link
-                    const url = window.URL.createObjectURL(xhr.response);
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = url;
-                    a.download = fileName;
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    
-                    // Clear the status after some time
-                    setTimeout(() => {
-                        downloadStatusCell.innerHTML = '';
-                    }, 5000); // 5 seconds
-                } else {
+                };
+    
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        // Create download link
+                        const url = window.URL.createObjectURL(xhr.response);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = fileName;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        
+                        // Show completion message
+                        downloadStatusCell.innerHTML = `
+                            <div class="download-complete">
+                                <i class="fas fa-check-circle"></i> Complete
+                            </div>
+                        `;
+                        
+                        // Reload the page after 3 seconds
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 3000);
+                    } else {
+                        // Show error message
+                        downloadStatusCell.innerHTML = `
+                            <div class="download-error">
+                                <i class="fas fa-times-circle"></i> Failed
+                                <button class="retry-btn" data-file-id="${fileId}">
+                                    <i class="fas fa-redo"></i> Retry
+                                </button>
+                            </div>
+                        `;
+                        
+                        // Add event listener to retry button
+                        const retryBtn = downloadStatusCell.querySelector('.retry-btn');
+                        if (retryBtn) {
+                            retryBtn.addEventListener('click', function() {
+                                const fileIdToRetry = this.getAttribute('data-file-id');
+                                document.querySelector(`.download-btn[data-file-id="${fileIdToRetry}"]`).click();
+                            });
+                        }
+                    }
+                };
+    
+                xhr.onerror = function() {
                     // Show error message
                     downloadStatusCell.innerHTML = `
                         <div class="download-error">
-                            <i class="fas fa-times-circle"></i> Failed
+                            <i class="fas fa-times-circle"></i> Network Error
                             <button class="retry-btn" data-file-id="${fileId}">
                                 <i class="fas fa-redo"></i> Retry
                             </button>
@@ -270,13 +343,125 @@ document.querySelectorAll('.download-btn').forEach(btn => {
                             document.querySelector(`.download-btn[data-file-id="${fileIdToRetry}"]`).click();
                         });
                     }
+                };
+    
+                xhr.send();
+                
+                // Prevent default click behavior since we're handling the download via XHR
+                e.preventDefault();
+            }
+        });
+    });
+
+//delete button 
+document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        const fileId = this.getAttribute('data-file-id');
+        const fileName = this.getAttribute('data-file-name');
+        const deleteUrl = this.getAttribute('href');
+
+        // Find the corresponding row and status cell
+        const fileRow = this.closest('tr');
+        const deleteStatusCell = fileRow.querySelector(`#download-status-${fileId}`);
+
+        // Confirm deletion
+        if (!confirm(`Are you sure you want to delete ${fileName}?`)) {
+            return;
+        }
+
+        if (deleteStatusCell) {
+            // Show deleting status
+            deleteStatusCell.innerHTML = `
+                <div class="delete-progress">
+                    <div class="delete-progress-bar"></div>
+                    <span class="delete-progress-text">0%</span>
+                </div>
+                <div class="delete-status-message">Preparing to delete...</div>
+            `;
+
+            const progressBar = deleteStatusCell.querySelector('.delete-progress-bar');
+            const progressTextElement = deleteStatusCell.querySelector('.delete-progress-text');
+            const statusMessage = deleteStatusCell.querySelector('.delete-status-message');
+
+            // Perform AJAX delete
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', deleteUrl, true);
+            
+            // Set CSRF token
+            xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            // Track delete progress
+            xhr.upload.onprogress = function(event) {
+                if (event.lengthComputable) {
+                    const progress = Math.round((event.loaded / event.total) * 100);
+                    
+                    // Update progress
+                    progressBar.style.width = `${progress}%`;
+                    progressTextElement.textContent = `${progress}%`;
+
+                    // Update status message based on progress
+                    if (progress < 20) {
+                        statusMessage.textContent = 'Preparing deletion';
+                    } else if (progress < 50) {
+                        statusMessage.textContent = 'Processing';
+                    } else if (progress < 95) {
+                        statusMessage.textContent = 'Deleting';
+                    } else {
+                        statusMessage.textContent = 'Finalizing...';
+                    }
+                }
+            };
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    // Deletion completed successfully
+                    deleteStatusCell.innerHTML = `
+                        <div class="delete-complete">
+                            <i class="fas fa-check-circle"></i> Deleted
+                        </div>
+                    `;
+
+                    // Remove the row from the table
+                    fileRow.remove();
+                    
+                    // Optional: Show a toast or notification
+                    console.log('File deleted successfully');
+                } else {
+                    // Parse error response
+                    let errorMessage = 'Delete failed';
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        errorMessage = response.message || errorMessage;
+                    } catch(e) {}
+
+                    // Show error message
+                    deleteStatusCell.innerHTML = `
+                        <div class="delete-error">
+                            <i class="fas fa-times-circle"></i> ${errorMessage}
+                            <button class="retry-btn" data-file-id="${fileId}">
+                                <i class="fas fa-redo"></i> Retry
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Add retry event listener
+                    const retryBtn = deleteStatusCell.querySelector('.retry-btn');
+                    if (retryBtn) {
+                        retryBtn.addEventListener('click', function() {
+                            // Re-trigger the delete process
+                            btn.click();
+                        });
+                    }
                 }
             };
 
             xhr.onerror = function() {
-                // Show error message
-                downloadStatusCell.innerHTML = `
-                    <div class="download-error">
+                // Network error
+                deleteStatusCell.innerHTML = `
+                    <div class="delete-error">
                         <i class="fas fa-times-circle"></i> Network Error
                         <button class="retry-btn" data-file-id="${fileId}">
                             <i class="fas fa-redo"></i> Retry
@@ -284,27 +469,41 @@ document.querySelectorAll('.download-btn').forEach(btn => {
                     </div>
                 `;
                 
-                // Add event listener to retry button
-                const retryBtn = downloadStatusCell.querySelector('.retry-btn');
+                // Add retry event listener
+                const retryBtn = deleteStatusCell.querySelector('.retry-btn');
                 if (retryBtn) {
                     retryBtn.addEventListener('click', function() {
-                        const fileIdToRetry = this.getAttribute('data-file-id');
-                        document.querySelector(`.download-btn[data-file-id="${fileIdToRetry}"]`).click();
+                        // Re-trigger the delete process
+                        btn.click();
                     });
                 }
             };
 
+            // Send the request
             xhr.send();
-            
-            // Prevent default click behavior since we're handling the download via XHR
-            e.preventDefault();
         }
     });
 });
 
+// Utility function to get CSRF token (if not already defined)
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
     uploadForm.addEventListener('submit', function (e) {
         e.preventDefault();
-
+         console.log('Form submitted');
         // Show progress modal
         uploadProgressModal.style.display = 'flex';
         uploadSubmitBtn.disabled = true;
@@ -529,6 +728,62 @@ document.querySelectorAll('.download-btn').forEach(btn => {
         xhr.open('POST', uploadForm.action, true);
         xhr.send(formData);
     }
+
+
+    function loadPage(url) {
+        console.log('Attempting to load page:', url); // Debugging log
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            console.log('Response status:', response.status); // Debugging log
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Received data:', data); // Debugging log
+            
+            // Find the table container and update its content
+            const tableContainer = document.querySelector('.files-table-container .table-responsive');
+            if (tableContainer && data.html) {
+                tableContainer.innerHTML = data.html;
+                attachPaginationEvents(); // Reattach events after loading new content
+            } else {
+                console.error('Could not find table container or HTML is empty');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading page:', error);
+            alert('Failed to load page. Please try again.');
+        });
+    }
+
+    function attachPaginationEvents() {
+        const paginationLinks = document.querySelectorAll('.pagination a');
+        console.log('Attaching events to pagination links:', paginationLinks.length); // Debugging log
+
+        paginationLinks.forEach(link => {
+            // Remove existing listeners to prevent multiple attachments
+            link.removeEventListener('click', paginationHandler);
+            link.addEventListener('click', paginationHandler);
+        });
+    }
+
+    function paginationHandler(e) {
+        e.preventDefault();
+        const url = this.href;
+        console.log('Pagination link clicked:', url); // Debugging log
+        loadPage(url);
+    }
+
+    // Initial attachment of pagination events
+    attachPaginationEvents();
 });
 </script>
 {% endblock %}

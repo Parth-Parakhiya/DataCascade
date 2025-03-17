@@ -13,6 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <!-- Top accent bar -->
@@ -42,14 +43,14 @@
                     <i class="fas fa-gauge-high"></i> Admin
                 </a>
                 {% endif %}
-                <a href="{% url 'logout' %}" class="btn btn-outline">
+                <a href="{% url 'logout' %}" class="btnFine Name,  button-main btn-outline">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
                 {% else %}
-                <a href="{% url 'login' %}" class="btn btn-outline">
+                <a href="{% url 'login' %}" class="btn button-main btn-outline">
                     <i class="fas fa-sign-in-alt"></i> Login
                 </a>
-                <a href="{% url 'register' %}" class="btn btn-primary">
+                <a href="{% url 'register' %}" class="btn button-main btn-primary">
                     <i class="fas fa-user-plus"></i> Register
                 </a>
                 {% endif %}
@@ -60,6 +61,7 @@
     <main>
         {% block content %}
         {% endblock %}
+        {% block extra_scripts %}{% endblock %}
     </main>
     
     <footer>
@@ -68,9 +70,7 @@
                 <h4>DataCascade</h4>
                 <p>Your secure distributed storage solution for seamless file management and distribution.</p>
                 <div class="social-icons">
-                    <a href="#"><i class="fab fa-github"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://github.com/Parth-Parakhiya/DataCascade"><i class="fab fa-github"></i></a>
                 </div>
             </div>
             
@@ -91,26 +91,29 @@
             <div class="footer-section">
                 <h4>Features</h4>
                 <ul>
-                    <li><a href="#">File Chunking</a></li>
-                    <li><a href="#">Distributed Storage</a></li>
-                    <li><a href="#">Replication</a></li>
-                    <li><a href="#">Error Checking</a></li>
+                    <li><a>File Chunking</a></li>
+                    <li><a>Distributed Storage</a></li>
+                    <li><a>Replication</a></li>
+                    <li><a>Error Checking</a></li>
                 </ul>
             </div>
             
             <div class="footer-section">
                 <h4>Support</h4>
                 <ul>
-                    <li><a href="#">Documentation</a></li>
-                    <li><a href="#">API</a></li>
-                    <li><a href="#">Contact Us</a></li>
+                    <li><a>Documentation</a></li>
+                    <li><a>API</a></li>
+                    <li><a>Contact Us</a></li>
                 </ul>
             </div>
         </div>
         
         <div class="copyright">
-            <p>&copy; 2025 DataCascade. All rights reserved.</p>
+            <p>&copy; <span id="year"></span> DataCascade. All rights reserved.</p>
         </div>
     </footer>
 </body>
+<script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+</script>
 </html>

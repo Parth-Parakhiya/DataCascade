@@ -52,6 +52,6 @@ class CustomAuthenticationForm(AuthenticationForm):
 class FileUploadForm(forms.ModelForm):
     class Meta:
         model = FileMetadata
-        fields = ['file_name', 'description']
+        fields = ['file_name', 'description', 'file']
     
     file = forms.FileField(required=True)  # File field that gets stored in MinIO

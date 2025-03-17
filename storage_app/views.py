@@ -13,8 +13,6 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from .utils.chuncker import chunk_file
 from django.http import FileResponse, Http404
-from django.contrib.auth.decorators import login_required
-from .models import FileMetadata
 from django.utils import timezone
 from storage_app.utils.chuncker import merge_chunks
 import socket
@@ -23,6 +21,17 @@ import concurrent.futures
 from minio import Minio
 import urllib3
 
+from django.views.decorators.http import require_POST
+from .utils.file_operation_tracker import FileOperationLog, FileOperationStatus
+import shutil
+from django.core.paginator import Paginator
+
+from .utils.file_operation_tracker import FileOperationLog, FileOperationStatus
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_protect
+from .models import FileMetadata, FileChunk
+import json
+from django.template.loader import render_to_string
 # from .utils.minio_client import upload_file_to_minio 
 
 
@@ -175,12 +184,26 @@ def generate_file_id():
 #         raise Http404("Download failed")
 
 
+@login_required
+def ajax_files_view(request):
+    user_files = FileMetadata.objects.filter(user=request.user).order_by("-uploaded_at")
+    paginator = Paginator(user_files, 5)  # Show 5 files per page
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Check if it's an AJAX request
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        html = render_to_string('files_table.html', {'page_obj': page_obj}, request=request)
+        return JsonResponse({'html': html})
+    
+    # Regular view rendering
+    return render(request, "files.html", {
+        "page_obj": page_obj, 
+        "form": FileUploadForm()
+    })
 
 
-
-
-
-from .utils.file_operation_tracker import FileOperationLog, FileOperationStatus
 
 @login_required(login_url='login')
 def files_view(request):
@@ -188,6 +211,10 @@ def files_view(request):
     Displays the user's uploaded files and handles file uploads.
     """
     user_files = FileMetadata.objects.filter(user=request.user).order_by("-uploaded_at")
+    paginator = Paginator(user_files, 5)  # Show 5 files per page
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
@@ -237,10 +264,9 @@ def files_view(request):
         form = FileUploadForm()
     
     return render(request, "files.html", {
-        "files": user_files, 
+        "page_obj": page_obj, 
         "form": form
     })
-
 
 
 from .utils.file_operation_tracker import FileOperationLog, FileOperationStatus
@@ -308,8 +334,75 @@ def download_file_view(request, file_id):
     
 
 
-
-
+@login_required
+@csrf_protect
+@require_POST
+def delete_file(request, file_id):
+    """
+    Delete a file by its file_id with comprehensive error handling
+    """
+    try:
+        # Retrieve the file metadata, ensuring it belongs to the current user
+        file_metadata = get_object_or_404(FileMetadata, file_id=file_id, user=request.user)
+        
+        try:
+            # Log the start of delete operation
+            operation_log = FileOperationLog.log_operation(
+                user=request.user,
+                file_name=file_metadata.file_name,
+                operation_type='delete',
+                status='deleting',
+                file_id=file_id
+            )
+            
+            # Delete associated chunks
+            FileChunk.objects.filter(file=file_metadata).delete()
+            
+            # Optional: Remove any local files if they exist
+            # Adjust these paths according to your chunk storage mechanism
+            chunks_dir = os.path.join('path', 'to', 'chunks', file_id)
+            merged_file_path = os.path.join('path', 'to', 'merged', file_metadata.file_name)
+            
+            if os.path.exists(chunks_dir):
+                shutil.rmtree(chunks_dir)
+            
+            if os.path.exists(merged_file_path):
+                os.remove(merged_file_path)
+            
+            # Delete the file metadata
+            file_metadata.delete()
+            
+            # Update log with success
+            operation_log.status = 'delete_complete'
+            operation_log.save()
+            
+            return JsonResponse({
+                'status': 'success', 
+                'message': 'File deleted successfully'
+            })
+        
+        except Exception as delete_error:
+            # Update log with deletion failure
+            operation_log.status = 'delete_failed'
+            operation_log.error_message = str(delete_error)
+            operation_log.save()
+            
+            return JsonResponse({
+                'status': 'error', 
+                'message': f'Failed to delete file: {str(delete_error)}'
+            }, status=400)
+    
+    except FileMetadata.DoesNotExist:
+        return JsonResponse({
+            'status': 'error', 
+            'message': 'File not found'
+        }, status=404)
+    
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error', 
+            'message': str(e)
+        }, status=400)
 
 
 
