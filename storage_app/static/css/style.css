@@ -2066,3 +2066,105 @@ body.dark-mode footer {
 body.dark-mode .feature-card h3 {
   color: #ffffff; /* White color for better visibility */
 }
+
+/* Dark Mode Specific Styling */
+body.dark-mode {
+  background: linear-gradient(
+      135deg,
+      #0d1117 0%, /* Very dark blue-black base */
+      #161b22 100% /* Slightly lighter dark blue-black */
+  );
+  color: #c9d1d9; /* GitHub-like light text color */
+}
+
+body.dark-mode .greeting-card {
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  color: #c9d1d9;
+}
+
+body.dark-mode .upload-card {
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+body.dark-mode .upload-card-header {
+  background-color: #21262d;
+  border-bottom: 1px solid #30363d;
+  color: #c9d1d9;
+}
+
+body.dark-mode .upload-card-body {
+  background-color: #161b22;
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group textarea {
+  background-color: #0d1117;
+  border-color: #30363d;
+  color: #c9d1d9;
+}
+
+body.dark-mode .files-table-container {
+  background-color: #161b22;
+  border: 1px solid #30363d;
+}
+
+body.dark-mode .files-count {
+  background-color: #21262d;
+  border-bottom: 1px solid #30363d;
+  color: #c9d1d9;
+}
+
+body.dark-mode .files-table {
+  background-color: #161b22;
+}
+
+body.dark-mode .files-table th {
+  background-color: #21262d;
+  color: #c9d1d9;
+  border-bottom: 1px solid #30363d;
+}
+
+body.dark-mode .files-table td {
+  border-color: #30363d;
+  color: #c9d1d9;
+}
+
+body.dark-mode .btn-primary {
+  background-color: #238636; /* GitHub green for primary actions */
+  color: white;
+  border: none;
+}
+
+body.dark-mode .btn-primary:hover {
+  background-color: #2ea44f;
+}
+
+body.dark-mode .btn-danger {
+  background-color: #da3633; /* GitHub red for danger actions */
+  color: white;
+  border: none;
+}
+
+body.dark-mode .btn-danger:hover {
+  background-color: #b62324;
+}
+
+body.dark-mode .pagination .step-links a,
+body.dark-mode .pagination .step-links span {
+  background-color: #21262d;
+  color: #c9d1d9;
+  border: 1px solid #30363d;
+}
+
+body.dark-mode .pagination .step-links a:hover {
+  background-color: #30363d;
+}
+
+body.dark-mode .pagination .active span {
+  background-color: #238636;
+  color: white;
+}
