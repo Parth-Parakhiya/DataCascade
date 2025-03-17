@@ -13,9 +13,10 @@
                 <h2>Distributed Storage System</h2>
                 <p>DataCascade efficiently splits and distributes your files across multiple storage nodes, ensuring
                     high availability and reliability.</p>
-                <a href="{% url 'register' %}" class="btn btn-primary button-main">
-                    <i class="fas fa-rocket"></i> Get Started
-                </a>
+             <!-- Inside the carousel items, replace existing buttons with: -->
+<a href="{% if user.is_authenticated %}{% url 'files' %}{% else %}{% url 'register' %}{% endif %}" class="btn btn-primary button-main">
+    <i class="fas fa-rocket"></i> Get Started
+</a>
             </div>
             <div class="carousel-image">
                 <i class="fas fa-database" style="font-size: 8rem; color: #3498db;"></i>
@@ -28,9 +29,10 @@
                 <h2>Intelligent File Chunking</h2>
                 <p>Our advanced chunking algorithm optimizes storage efficiency while maintaining fast retrieval times
                     for all your data.</p>
-                    <a href="{% url 'register' %}" class="btn btn-primary button-main">
-                        <i class="fas fa-rocket"></i> Get Started
-                    </a>
+                <!-- Inside the carousel items, replace existing buttons with: -->
+<a href="{% if user.is_authenticated %}{% url 'files' %}{% else %}{% url 'register' %}{% endif %}" class="btn btn-primary button-main">
+    <i class="fas fa-rocket"></i> Get Started
+</a>
             </div>
             <div class="carousel-image">
                 <i class="fas fa-puzzle-piece" style="font-size: 8rem; color: #2ecc71;"></i>
@@ -43,9 +45,10 @@
                 <h2>Redundancy & Security</h2>
                 <p>Built-in error checking and multiple replication strategies ensure your data remains safe and
                     accessible at all times.</p>
-                    <a href="{% url 'register' %}" class="btn btn-primary button-main">
-                        <i class="fas fa-rocket"></i> Get Started
-                    </a>
+                 <!-- Inside the carousel items, replace existing buttons with: -->
+<a href="{% if user.is_authenticated %}{% url 'files' %}{% else %}{% url 'register' %}{% endif %}" class="btn btn-primary button-main">
+    <i class="fas fa-rocket"></i> Get Started
+</a>
             </div>
             <div class="carousel-image">
                 <i class="fas fa-lock" style="font-size: 8rem; color: #e74c3c;"></i>
