@@ -1,11 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const uploadForm = document.getElementById('upload-form');
-    const uploadProgressModal = document.getElementById('upload-progress-modal');
-    const uploadProgressBar = document.getElementById('upload-progress-bar');
-    const uploadStatusMessage = document.getElementById('upload-status-message');
-    const uploadSubmitBtn = document.getElementById('upload-submit-btn');
-    const progressText = document.querySelector('.progress-text');
-    const stagesContainer = document.getElementById('upload-stages');
+
     const fileInput = document.getElementById('id_file');
     const fileSelected = document.querySelector('.file-selected');
     
@@ -293,6 +287,14 @@ function getCookie(name) {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
+    
+    const uploadForm = document.getElementById('upload-form');
+    const uploadProgressModal = document.getElementById('upload-progress-modal');
+    const uploadProgressBar = document.getElementById('upload-progress-bar');
+    const uploadStatusMessage = document.getElementById('upload-status-message');
+    const uploadSubmitBtn = document.getElementById('upload-submit-btn');
+    const progressText = document.querySelector('.progress-text');
+    const stagesContainer = document.getElementById('upload-stages');
     
     uploadForm.addEventListener('submit', function (e) {
         e.preventDefault();
