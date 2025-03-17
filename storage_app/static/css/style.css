@@ -1998,3 +1998,71 @@ footer {
   margin-right: 10px;
   font-size: 1.5rem;
 }
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  margin-left: 10px;
+}
+
+.dark-mode-toggle:hover {
+  transform: rotate(360deg);
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+  background: linear-gradient(
+      135deg,
+      #1a1a2e 0%,
+      #16213e 100%
+  );
+  color: #e0e0e0;
+}
+
+body.dark-mode header {
+  background: linear-gradient(
+      90deg,
+      rgba(22, 33, 62, 0.95) 0%,
+      rgba(26, 26, 46, 0.95) 100%
+  );
+}
+
+body.dark-mode .accent-bar {
+  background: linear-gradient(
+      90deg,
+      #16213e 0%,
+      #0f3460 100%
+  );
+}
+
+body.dark-mode main {
+  background: transparent;
+}
+
+body.dark-mode .hero,
+body.dark-mode .feature-card {
+  background: linear-gradient(135deg, #16213e 0%, #0f3460 100%);
+  color: #e0e0e0;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .feature-card:hover {
+  background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+}
+
+body.dark-mode footer {
+  background: linear-gradient(
+      135deg,
+      rgba(22, 33, 62, 0.95) 0%,
+      rgba(26, 26, 46, 0.95) 100%
+  );
+}
+
+body.dark-mode .feature-card h3 {
+  color: #ffffff; /* White color for better visibility */
+}
