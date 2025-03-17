@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{% static '/css/style.css' %}">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,14 +43,14 @@
                     <i class="fas fa-gauge-high"></i> Admin
                 </a>
                 {% endif %}
-                <a href="{% url 'logout' %}" class="btn btn-outline">
+                <a href="{% url 'logout' %}" class="btn button-main btn-outline">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
                 {% else %}
-                <a href="{% url 'login' %}" class="btn btn-outline">
+                <a href="{% url 'login' %}" class="btn button-main btn-outline">
                     <i class="fas fa-sign-in-alt"></i> Login
                 </a>
-                <a href="{% url 'register' %}" class="btn btn-primary">
+                <a href="{% url 'register' %}" class="btn button-main btn-primary">
                     <i class="fas fa-user-plus"></i> Register
                 </a>
                 {% endif %}
@@ -68,9 +69,7 @@
                 <h4>DataCascade</h4>
                 <p>Your secure distributed storage solution for seamless file management and distribution.</p>
                 <div class="social-icons">
-                    <a href="#"><i class="fab fa-github"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://github.com/Parth-Parakhiya/DataCascade"><i class="fab fa-github"></i></a>
                 </div>
             </div>
             
@@ -85,16 +84,17 @@
                     <li><a href="{% url 'login' %}">Login</a></li>
                     <li><a href="{% url 'register' %}">Register</a></li>
                     {% endif %}
+                    <li><a href="{% url 'admin_dashboard' %}">Admin</a></li>
                 </ul>
             </div>
             
             <div class="footer-section">
                 <h4>Features</h4>
                 <ul>
-                    <li><a href="#">File Chunking</a></li>
-                    <li><a href="#">Distributed Storage</a></li>
-                    <li><a href="#">Replication</a></li>
-                    <li><a href="#">Error Checking</a></li>
+                    <li><a>File Chunking</a></li>
+                    <li><a>Distributed Storage</a></li>
+                    <li><a>Replication</a></li>
+                    <li><a>Error Checking</a></li>
                 </ul>
             </div>
             
@@ -102,8 +102,7 @@
                 <h4>Support</h4>
                 <ul>
                     <li><a href="#">Documentation</a></li>
-                    <li><a href="#">API</a></li>
-                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="https://github.com/Parth-Parakhiya/DataCascade">Contact Us</a></li>
                 </ul>
             </div>
         </div>

@@ -114,7 +114,7 @@ nav a {
 }
 
 nav a:hover {
-  color: #b3e5fc; /* Light blue highlight */
+  color: #1665C0; /* Light blue highlight */
 }
 
 .btn {
@@ -307,8 +307,8 @@ main {
 footer {
   background: linear-gradient(
     135deg,
-    var(--primary-dark) 0%,
-    var(--primary) 100%
+    rgba(21, 101, 192, 0.95) 0%,
+    rgba(74, 143, 227, 0.95) 100%
   );
   padding: 2rem 0;
   margin-top: 3rem;
@@ -346,7 +346,7 @@ footer {
 }
 
 .footer-section ul li a:hover {
-  color: #b3e5fc; /* Light blue */
+  color: #1165C0; /* Light blue */
 }
 
 .social-icons {
@@ -362,7 +362,7 @@ footer {
 }
 
 .social-icons a:hover {
-  color: #b3e5fc; /* Light blue */
+  color: #1165C0; /* Light blue */
 }
 
 .copyright {
@@ -1986,4 +1986,15 @@ footer {
   background-color: #e0e0e0; /* Disabled background color */
   color: #7f8c8d; /* Disabled text color */
   cursor: not-allowed;
+}
+
+.upload-section h2 {
+  display: flex;
+  align-items: center;
+  color: white;
+}
+
+.upload-section i {
+  margin-right: 10px;
+  font-size: 1.5rem;
 }
