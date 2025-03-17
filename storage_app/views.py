@@ -13,15 +13,24 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from .utils.chuncker import chunk_file
 from django.http import FileResponse, Http404
-from django.contrib.auth.decorators import login_required
-from .models import FileMetadata
-from django.utils import timezone
 from storage_app.utils.chuncker import merge_chunks
 import socket
 import concurrent.futures
 
 from minio import Minio
 import urllib3
+
+from django.views.decorators.http import require_POST
+from .utils.file_operation_tracker import FileOperationLog, FileOperationStatus
+import shutil
+from django.core.paginator import Paginator
+
+from .utils.file_operation_tracker import FileOperationLog, FileOperationStatus
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_protect
+from .models import FileMetadata, FileChunk
+import json
+from django.template.loader import render_to_string
 
 # from .utils.minio_client import upload_file_to_minio 
 
@@ -189,6 +198,11 @@ def files_view(request):
     """
     user_files = FileMetadata.objects.filter(user=request.user).order_by("-uploaded_at")
 
+    paginator = Paginator(user_files, 5)  # Show 5 files per page
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -237,27 +251,27 @@ def files_view(request):
         form = FileUploadForm()
     
     return render(request, "files.html", {
+        "page_obj": page_obj, 
         "files": user_files, 
         "form": form
     })
 
 
 
-from .utils.file_operation_tracker import FileOperationLog, FileOperationStatus
+from django.shortcuts import get_object_or_404
+from django.http import FileResponse, Http404
+from django.utils import timezone
+from .models import FileMetadata
+import logging
+
+logger = logging.getLogger(__name__)
 
 @login_required
 def download_file_view(request, file_id):
-    """
-    Download a file by its file_id with tracking
-    """
     try:
-        # Retrieve the file metadata
-        file_metadata = FileMetadata.objects.get(
-            file_id=file_id, 
-            user=request.user
-        )
-        
-        # Log the start of download
+        file_metadata = FileMetadata.objects.get(file_id=file_id, user=request.user)
+        logger.info(f"File metadata retrieved: {file_metadata}")
+
         operation_log = FileOperationLog.log_operation(
             user=request.user,
             file_name=file_metadata.file_name,
@@ -265,47 +279,114 @@ def download_file_view(request, file_id):
             status=FileOperationStatus.DOWNLOADING,
             file_id=file_id
         )
-        
-        # Merge chunks
+
         merged_file_path = merge_chunks(file_metadata)
-        
+        logger.info(f"Merged file path: {merged_file_path}")
+
         if not merged_file_path:
-            # Update log with failure
             operation_log.status = FileOperationStatus.DOWNLOAD_FAILED
             operation_log.error_message = "File reconstruction failed"
             operation_log.save()
-            
             raise Http404("File could not be reconstructed")
-        
-        # Prepare file response
+
         response = FileResponse(
             open(merged_file_path, 'rb'), 
             as_attachment=True, 
             filename=file_metadata.file_name
         )
-        
-        # Update last downloaded timestamp
+
         file_metadata.last_downloaded_at = timezone.now()
         file_metadata.save()
-        
-        # Update log with success
+
         operation_log.status = FileOperationStatus.DOWNLOAD_COMPLETE
         operation_log.save()
-        
+
         return response
-    
+
     except FileMetadata.DoesNotExist:
+        logger.error("File not found")
         raise Http404("File not found")
     except Exception as e:
-        # Log unexpected errors
+        logger.error(f"Download failed: {e}")
         if 'operation_log' in locals():
             operation_log.status = FileOperationStatus.DOWNLOAD_FAILED
             operation_log.error_message = str(e)
             operation_log.save()
-        
         raise Http404("Download failed")
     
     
+
+
+
+@login_required
+@csrf_protect
+@require_POST
+def delete_file(request, file_id):
+    """
+    Delete a file by its file_id with comprehensive error handling
+    """
+    try:
+        # Retrieve the file metadata, ensuring it belongs to the current user
+        file_metadata = get_object_or_404(FileMetadata, file_id=file_id, user=request.user)
+        
+        try:
+            # Log the start of delete operation
+            operation_log = FileOperationLog.log_operation(
+                user=request.user,
+                file_name=file_metadata.file_name,
+                operation_type='delete',
+                status='deleting',
+                file_id=file_id
+            )
+            
+            # Delete associated chunks
+            FileChunk.objects.filter(file=file_metadata).delete()
+            
+            # Optional: Remove any local files if they exist
+            # Adjust these paths according to your chunk storage mechanism
+            chunks_dir = os.path.join('path', 'to', 'chunks', file_id)
+            merged_file_path = os.path.join('path', 'to', 'merged', file_metadata.file_name)
+            
+            if os.path.exists(chunks_dir):
+                shutil.rmtree(chunks_dir)
+            
+            if os.path.exists(merged_file_path):
+                os.remove(merged_file_path)
+            
+            # Delete the file metadata
+            file_metadata.delete()
+            
+            # Update log with success
+            operation_log.status = 'delete_complete'
+            operation_log.save()
+            
+            return JsonResponse({
+                'status': 'success', 
+                'message': 'File deleted successfully'
+            })
+        
+        except Exception as delete_error:
+            # Update log with deletion failure
+            operation_log.status = 'delete_failed'
+            operation_log.error_message = str(delete_error)
+            operation_log.save()
+            
+            return JsonResponse({
+                'status': 'error', 
+                'message': f'Failed to delete file: {str(delete_error)}'
+            }, status=400)
+    
+    except FileMetadata.DoesNotExist:
+        return JsonResponse({
+            'status': 'error', 
+            'message': 'File not found'
+        }, status=404)
+    
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error', 
+            'message': str(e)
+        }, status=400)
 
 
 
@@ -501,3 +582,5 @@ def admin_dashboard(request):
         'server_status_message': server_status_message
     }
     return render(request, 'admin_dashboard.html', context)
+
+
