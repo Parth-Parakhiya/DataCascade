@@ -22,7 +22,7 @@
                 </div>
                 <div class="info-row">
                     <div class="info-label">Full Name</div>
-                    <div class="info-value">{{ user.first_name }}</div>
+                    <div class="info-value">{{ user.first_name | default:'NA' }}</div>
                 </div>
                 <div class="info-row">
                     <div class="info-label">Email</div>
