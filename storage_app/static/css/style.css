@@ -2168,3 +2168,252 @@ body.dark-mode .pagination .active span {
   background-color: #238636;
   color: white;
 }
+
+/* Dark Mode Profile Page Styles */
+body.dark-mode .profile-container {
+  background: linear-gradient(
+      135deg,
+      #0d1117 0%, 
+      #161b22 100%
+  );
+}
+
+body.dark-mode .profile-card {
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+body.dark-mode .profile-header {
+  background-color: #21262d;
+  border-bottom: 1px solid #30363d;
+  color: #c9d1d9;
+}
+
+body.dark-mode .profile-avatar {
+  background-color: #238636;
+  color: white;
+}
+
+body.dark-mode .profile-title h2 {
+  color: #c9d1d9;
+}
+
+body.dark-mode .profile-title p {
+  color: #8b949e;
+}
+
+body.dark-mode .profile-content {
+  background-color: #161b22;
+}
+
+body.dark-mode .info-group {
+  border-bottom: 1px solid #30363d;
+}
+
+body.dark-mode .info-group h3 {
+  color: #c9d1d9;
+}
+
+body.dark-mode .info-label {
+  color: #8b949e;
+}
+
+body.dark-mode .info-value {
+  color: #c9d1d9;
+}
+
+body.dark-mode .activity-badge {
+  background-color: #238636;
+  color: white;
+}
+
+/* Additional dark mode specific styles */
+body.dark-mode .profile-card .info-row {
+  border-bottom: 1px solid #30363d;
+}
+
+body.dark-mode .profile-card .info-row:last-child {
+  border-bottom: none;
+}
+
+/* Dark Mode Login Page Styles */
+body.dark-mode .login-container {
+  background: linear-gradient(
+      135deg,
+      #0d1117 0%, 
+      #161b22 100%
+  );
+}
+
+body.dark-mode .login-card {
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .login-title {
+  color: #c9d1d9;
+}
+
+body.dark-mode .login-form {
+  background-color: #161b22;
+}
+
+body.dark-mode .form-group label {
+  color: #8b949e;
+}
+
+body.dark-mode .input-wrapper input {
+  background-color: #0d1117;
+  border-color: #30363d;
+  color: #c9d1d9;
+}
+
+body.dark-mode .input-wrapper input:focus {
+  border-color: #238636;
+  box-shadow: 0 0 0 3px rgba(35, 134, 54, 0.2);
+}
+
+body.dark-mode .input-icon {
+  color: #8b949e;
+}
+
+body.dark-mode .input-wrapper input:focus + .input-icon {
+  color: #238636;
+}
+
+body.dark-mode .login-btn {
+  background-color: #238636;
+  color: white;
+  border: none;
+}
+
+body.dark-mode .login-btn:hover {
+  background-color: #2ea44f;
+}
+
+body.dark-mode .form-links {
+  border-top: 1px solid #30363d;
+}
+
+body.dark-mode .form-links p {
+  color: #8b949e;
+}
+
+body.dark-mode .form-links a {
+  color: #58a6ff;
+}
+
+body.dark-mode .form-links a:hover {
+  color: #58a6ff;
+  text-decoration: underline;
+}
+
+body.dark-mode .register-link {
+  border-top: 1px solid #30363d;
+}
+
+/* Dark Mode Registration Page Styles */
+body.dark-mode .register-container {
+  background: linear-gradient(
+      135deg,
+      #0d1117 0%, 
+      #161b22 100%
+  );
+}
+
+body.dark-mode .register-card {
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .register-title {
+  color: #c9d1d9;
+}
+
+body.dark-mode .register-form {
+  background-color: #161b22;
+}
+
+body.dark-mode .form-group label {
+  color: #8b949e;
+}
+
+body.dark-mode .input-wrapper input,
+body.dark-mode .input-wrapper select {
+  background-color: #0d1117;
+  border-color: #30363d;
+  color: #c9d1d9;
+}
+
+body.dark-mode .input-wrapper input:focus,
+body.dark-mode .input-wrapper select:focus {
+  border-color: #238636;
+  box-shadow: 0 0 0 3px rgba(35, 134, 54, 0.2);
+}
+
+body.dark-mode .input-icon {
+  color: #8b949e;
+}
+
+body.dark-mode .input-wrapper input:focus + .input-icon,
+body.dark-mode .input-wrapper select:focus + .input-icon {
+  color: #238636;
+}
+
+body.dark-mode .help-text {
+  color: #8b949e;
+}
+
+body.dark-mode .password-requirements {
+  color: #8b949e;
+}
+
+body.dark-mode .password-requirements li::before {
+  color: #8b949e;
+}
+
+body.dark-mode .register-btn {
+  background-color: #238636;
+  color: white;
+  border: none;
+}
+
+body.dark-mode .register-btn:hover {
+  background-color: #2ea44f;
+}
+
+body.dark-mode .creation-time {
+  border-top: 1px solid #30363d;
+  color: #8b949e;
+}
+
+body.dark-mode .form-links {
+  border-top: 1px solid #30363d;
+}
+
+body.dark-mode .form-links p {
+  color: #8b949e;
+}
+
+body.dark-mode .form-links a {
+  color: #58a6ff;
+}
+
+body.dark-mode .form-links a:hover {
+  color: #58a6ff;
+  text-decoration: underline;
+}
+
+/* Additional specific dark mode styles */
+body.dark-mode .input-wrapper select option {
+  background-color: #161b22;
+  color: #c9d1d9;
+}
+
+body.dark-mode .input-wrapper select option:checked {
+  background-color: #238636;
+  color: white;
+}
