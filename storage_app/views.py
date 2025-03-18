@@ -195,20 +195,23 @@ from .utils.file_operation_tracker import FileOperationLog, FileOperationStatus
 def files_view(request):
     """
     Displays the user's uploaded files and handles file uploads.
+    Allows users to view their uploaded files with pagination and upload new files.
     """
+    # Retrieve all files uploaded by the user, ordered by the upload date
     user_files = FileMetadata.objects.filter(user=request.user).order_by("-uploaded_at")
 
-    paginator = Paginator(user_files, 5)  # Show 5 files per page
-
+    # Paginate the user files; show 5 files per page
+    paginator = Paginator(user_files, 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
+
         if form.is_valid():
             file = request.FILES['file']
             
-            # Log the start of upload
+            # Log the start of the upload operation
             operation_log = FileOperationLog.log_operation(
                 user=request.user,
                 file_name=file.name,
@@ -217,7 +220,7 @@ def files_view(request):
             )
             
             try:
-                # Chunk file and create metadata
+                # Chunk the file and create its metadata
                 file_metadata = chunk_file(
                     file, 
                     request.user, 
@@ -225,7 +228,7 @@ def files_view(request):
                 )
                 
                 if file_metadata:
-                    # Update log with success
+                    # Update log with upload success status
                     operation_log.status = FileOperationStatus.UPLOAD_COMPLETE
                     operation_log.file_id = file_metadata.file_id
                     operation_log.save()
@@ -233,7 +236,7 @@ def files_view(request):
                     messages.success(request, "File uploaded successfully")
                     return redirect('files')
                 else:
-                    # Update log with failure
+                    # Update log with upload failure status
                     operation_log.status = FileOperationStatus.UPLOAD_FAILED
                     operation_log.error_message = "Chunking process failed"
                     operation_log.save()
@@ -241,7 +244,7 @@ def files_view(request):
                     raise Http404("File upload failed")
             
             except Exception as e:
-                # Update log with unexpected error
+                # Update log with unexpected error during upload
                 operation_log.status = FileOperationStatus.UPLOAD_FAILED
                 operation_log.error_message = str(e)
                 operation_log.save()
@@ -250,6 +253,7 @@ def files_view(request):
     else:
         form = FileUploadForm()
     
+    # Render the files template with paginated files and the upload form
     return render(request, "files.html", {
         "page_obj": page_obj, 
         "files": user_files, 
@@ -268,10 +272,26 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def download_file_view(request, file_id):
+    """
+    Download a file by its file_id
+
+    This view retrieves the file metadata from the database, merges the file
+    chunks, creates a file response, updates the last downloaded timestamp, and
+    logs the download operation status and possible errors.
+    """
+    # Retrieve the file metadata
+    # Merge chunks
+    # Prepare file response
+    # Update last downloaded timestamp
+    # Return file response
+    # Log download operation status and possible errors
+    
     try:
+        # Retrieve the file metadata
         file_metadata = FileMetadata.objects.get(file_id=file_id, user=request.user)
         logger.info(f"File metadata retrieved: {file_metadata}")
 
+        # Log the start of the download operation
         operation_log = FileOperationLog.log_operation(
             user=request.user,
             file_name=file_metadata.file_name,
@@ -280,35 +300,45 @@ def download_file_view(request, file_id):
             file_id=file_id
         )
 
+        # Merge chunks
         merged_file_path = merge_chunks(file_metadata)
         logger.info(f"Merged file path: {merged_file_path}")
 
+        # Check if the file could not be reconstructed
         if not merged_file_path:
+            # Update log with download failure status
             operation_log.status = FileOperationStatus.DOWNLOAD_FAILED
             operation_log.error_message = "File reconstruction failed"
             operation_log.save()
             raise Http404("File could not be reconstructed")
 
+        # Prepare the file response
         response = FileResponse(
             open(merged_file_path, 'rb'), 
             as_attachment=True, 
             filename=file_metadata.file_name
         )
 
+        # Update the last downloaded timestamp
         file_metadata.last_downloaded_at = timezone.now()
         file_metadata.save()
 
+        # Update log with download success status
         operation_log.status = FileOperationStatus.DOWNLOAD_COMPLETE
         operation_log.save()
 
+        # Return the file response
         return response
 
     except FileMetadata.DoesNotExist:
+        # Log the error if the file metadata could not be found
         logger.error("File not found")
         raise Http404("File not found")
     except Exception as e:
+        # Log the error if an unexpected error occurred
         logger.error(f"Download failed: {e}")
         if 'operation_log' in locals():
+            # Update log with download failure status
             operation_log.status = FileOperationStatus.DOWNLOAD_FAILED
             operation_log.error_message = str(e)
             operation_log.save()
@@ -323,12 +353,20 @@ def download_file_view(request, file_id):
 @require_POST
 def delete_file(request, file_id):
     """
-    Delete a file by its file_id with comprehensive error handling
+    Delete a file by its file_id with comprehensive error handling.
+
+    This function performs the following operations:
+    - Retrieves the file metadata, ensuring it belongs to the current user.
+    - Logs the start of the delete operation.
+    - Deletes associated file chunks.
+    - Removes local files if they exist.
+    - Deletes the file metadata.
+    - Handles errors and logs them appropriately.
     """
     try:
         # Retrieve the file metadata, ensuring it belongs to the current user
         file_metadata = get_object_or_404(FileMetadata, file_id=file_id, user=request.user)
-        
+
         try:
             # Log the start of delete operation
             operation_log = FileOperationLog.log_operation(
@@ -338,53 +376,57 @@ def delete_file(request, file_id):
                 status='deleting',
                 file_id=file_id
             )
-            
+
             # Delete associated chunks
             FileChunk.objects.filter(file=file_metadata).delete()
-            
+
             # Optional: Remove any local files if they exist
             # Adjust these paths according to your chunk storage mechanism
             chunks_dir = os.path.join('path', 'to', 'chunks', file_id)
             merged_file_path = os.path.join('path', 'to', 'cached', file_metadata.file_name)
-            
+
             if os.path.exists(chunks_dir):
-                shutil.rmtree(chunks_dir)
-            
+                shutil.rmtree(chunks_dir)  # Remove the directory and its contents
+
             if os.path.exists(merged_file_path):
-                os.remove(merged_file_path)
-            
+                os.remove(merged_file_path)  # Remove the merged file
+
             # Delete the file metadata
             file_metadata.delete()
-            
+
             # Update log with success
             operation_log.status = 'delete_complete'
             operation_log.save()
-            
+
+            # Return success response
             return JsonResponse({
-                'status': 'success', 
+                'status': 'success',
                 'message': 'File deleted successfully'
             })
-        
+
         except Exception as delete_error:
             # Update log with deletion failure
             operation_log.status = 'delete_failed'
             operation_log.error_message = str(delete_error)
             operation_log.save()
-            
+
+            # Return error response
             return JsonResponse({
-                'status': 'error', 
+                'status': 'error',
                 'message': f'Failed to delete file: {str(delete_error)}'
             }, status=400)
-    
+
     except FileMetadata.DoesNotExist:
+        # Return error response if the file is not found
         return JsonResponse({
-            'status': 'error', 
+            'status': 'error',
             'message': 'File not found'
         }, status=404)
-    
+
     except Exception as e:
+        # Return error response for any other exceptions
         return JsonResponse({
-            'status': 'error', 
+            'status': 'error',
             'message': str(e)
         }, status=400)
 
@@ -400,33 +442,91 @@ def delete_file(request, file_id):
 
 
 def is_port_open(host, port):
+    """
+    Check if a TCP port is open on the given host.
+
+    Parameters
+    ----------
+    host : str
+        The hostname or IP address of the host to check.
+    port : int
+        The port number to check.
+
+    Returns
+    -------
+    bool
+        True if the port is open, False if it is not.
+    """
     try:
+        # Create a socket and set the timeout to 2 seconds
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(2)
+
+        # Attempt to connect to the host:port
         result = sock.connect_ex((host, port))
+
+        # Close the socket
         sock.close()
+
+        # Return True if the connection was successful
         return result == 0
     except Exception:
+        # Return False if any exception was raised
         return False
 
 
 def calculate_storage_usage(client, buckets):
+    """
+    Calculate the total storage usage across all buckets.
+
+    Parameters
+    ----------
+    client : minio.Minio
+        The MinIO client to use for getting bucket and object info.
+    buckets : list[minio.objects.Bucket]
+        The list of buckets to calculate storage for.
+
+    Returns
+    -------
+    float
+        The total storage used in gigabytes.
+    """
     total_size = 0
     for bucket in buckets:
         try:
+            # Get the list of objects in the bucket
             objects = client.list_objects(bucket.name, recursive=True)
             for obj in objects:
                 try:
+                    # Get the stats for the object
                     obj_stat = client.stat_object(bucket.name, obj.object_name)
+                    # Add the size of the object to the total size
                     total_size += obj_stat.size
                 except Exception as stat_error:
                     print(f"Error getting object stat for {obj.object_name}: {stat_error}")
         except Exception as list_error:
             print(f"Error listing objects in bucket {bucket.name}: {list_error}")
+    # Return the total storage used in gigabytes
     return total_size / (1024 * 1024 * 1024)
 
 
 def check_server_status(server_url):
+    """
+    Check the status of a MinIO server.
+
+    This function takes a MinIO server URL and checks its availability and status.
+    It returns a dictionary containing the server's status, details, and drive information.
+
+    Parameters
+    ----------
+    server_url : str
+        The URL of the MinIO server to check.
+
+    Returns
+    -------
+    dict
+        The server's status, details, and drive information.
+    """
     try:
         host = server_url.split('//')[1].split(':')[0]
         port = int(server_url.split('//')[1].split(':')[1])
@@ -440,15 +540,21 @@ def check_server_status(server_url):
             }
 
         try:
+            # Create a MinIO client to connect to the server
             client = Minio(
                 server_url.split('//')[1],
                 access_key="admin",
                 secret_key="adminadmin",
                 secure=False
             )
+
+            # Get the list of buckets on the server
             buckets = client.list_buckets()
+
+            # Get the list of drives on the server (for now, just return a dummy drive)
             drives = [{'path': 'Unknown', 'status': 'Online'}]
 
+            # Return the server's status, details, and drives
             return {
                 'url': server_url,
                 'status': 'Online',
