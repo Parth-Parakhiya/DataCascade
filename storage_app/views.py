@@ -345,7 +345,7 @@ def delete_file(request, file_id):
             # Optional: Remove any local files if they exist
             # Adjust these paths according to your chunk storage mechanism
             chunks_dir = os.path.join('path', 'to', 'chunks', file_id)
-            merged_file_path = os.path.join('path', 'to', 'merged', file_metadata.file_name)
+            merged_file_path = os.path.join('path', 'to', 'cached', file_metadata.file_name)
             
             if os.path.exists(chunks_dir):
                 shutil.rmtree(chunks_dir)

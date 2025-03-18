@@ -176,7 +176,7 @@ def merge_chunks(file_metadata):
         chunks = FileChunk.objects.filter(file=file_metadata).order_by('chunk_index')
         
         # Prepare output file path
-        output_dir = os.path.join(settings.MEDIA_ROOT, 'merged')
+        output_dir = os.path.join(settings.MEDIA_ROOT, 'cached')
         os.makedirs(output_dir, exist_ok=True)
         output_path = os.path.join(output_dir, file_metadata.file_name)
         
