@@ -476,6 +476,22 @@ def check_server_status(server_url):
 
 
 def admin_dashboard(request):
+    """
+    Render the admin dashboard with storage system overview and server status information.
+
+    This view gathers data from multiple MinIO servers to display on the admin dashboard.
+    It checks the availability and status of configured MinIO servers, retrieves information
+    about buckets and objects, and calculates storage usage. The dashboard displays the
+    number of online/offline servers and drives, total storage usage, and lists of buckets
+    and data objects.
+
+    Args:
+        request: The HTTP request object.
+
+    Returns:
+        HttpResponse: The rendered admin dashboard page with server and storage statistics.
+    """
+
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     server_urls = [

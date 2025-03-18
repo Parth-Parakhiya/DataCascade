@@ -10,6 +10,7 @@ urlpatterns = [
 
 
 
+ 
     path('', views.index, name='index'),
     path('register/', views.register, name='register'),
     path('login/', views.user_login, name='login'),
@@ -42,7 +43,12 @@ urlpatterns = [
             template_name='password_reset_complete.html'
         ), name='password_reset_complete'),
 
-
+   # The 'password_reset' path initiates the password reset process, sending an email to the user with a password reset link.
+    # The 'password_reset_done' path is displayed after the user has initiated the password reset process.
+    # The 'password_reset_confirm' path is used to validate the password reset link sent to the user's email.
+    # The 'password_reset_complete' path is displayed after the user has successfully reset their password.
+    
+  # Adding a path for the user profile view.
     path('profile/', views.profile, name='profile'),
 
 

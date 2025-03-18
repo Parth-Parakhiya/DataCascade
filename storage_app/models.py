@@ -1,4 +1,7 @@
 # VERSION 2.1.1
+# This file defines the database models for our distributed storage system
+# It includes models for file metadata, file chunks, storage nodes, and data objects
+# These models work together to enable file chunking, distribution, and retrieval
 import uuid
 from django.db import models
 from django.contrib.auth.models import User
@@ -15,7 +18,7 @@ class FileMetadata(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="files")
     file_id = models.CharField(max_length=100, unique=True, default=generate_file_id)
     file_name = models.CharField(max_length=255)  # filename with extension
-    
+
     # File Details
     file_url = models.URLField(max_length=500, null=True)
     description = models.TextField(blank=True, null=True)
@@ -25,7 +28,7 @@ class FileMetadata(models.Model):
         null=True, 
         help_text="Checksum of the complete original file and updated in the checksum function"
     )
-    
+
     # Chunking Information
     is_chunked = models.BooleanField(
         default=False,
@@ -35,7 +38,7 @@ class FileMetadata(models.Model):
         default=1,
         help_text="Total number of chunks for this file"
     )
-    
+
     # Timestamps
     uploaded_at = models.DateTimeField(auto_now_add=True)
     last_downloaded_at = models.DateTimeField(blank=True, null=True)
@@ -47,15 +50,18 @@ class FileMetadata(models.Model):
 
     def __str__(self):
         return f"{self.file_name} ({self.file_size} bytes) by {self.user.username}"
-    
+
     def get_chunks_count(self):
         """Returns the number of chunks associated with this file"""
         return self.chunks.count()
-    
+
     def is_complete(self):
         """Check if all chunks are present"""
         return self.get_chunks_count() == self.total_chunks
 
+# The FileChunk model represents individual pieces of a file that has been split
+# Each chunk is stored separately in the MinIO distributed storage system
+# This enables parallel uploads/downloads and better fault tolerance
 class FileChunk(models.Model):
     # Relationship to parent file
     file = models.ForeignKey(
@@ -63,7 +69,7 @@ class FileChunk(models.Model):
         on_delete=models.CASCADE, 
         related_name="chunks"
     )
-    
+
     # Chunk Details
     chunk_index = models.PositiveIntegerField(
         help_text="Sequence number of this chunk"
@@ -75,7 +81,7 @@ class FileChunk(models.Model):
         max_length=64, 
         help_text="Checksum (e.g. MD5 or SHA256) to verify integrity"
     )
-    
+
     # Storage Information
     storage_node = models.CharField(
         max_length=50, 
@@ -85,7 +91,7 @@ class FileChunk(models.Model):
         max_length=255, 
         help_text="Object key in MinIO where the chunk is stored"
     )
-    
+
     # Metadata
     uploaded_at = models.DateTimeField(auto_now_add=True)
     is_verified = models.BooleanField(
@@ -95,13 +101,13 @@ class FileChunk(models.Model):
 
     class Meta:
         unique_together = ('file', 'chunk_index')  # ensures no duplicate chunks for a file
-        ordering = ['chunk_index']  # Always retrieve chunks in correct order
+        ordering = ['chunk_index']  
         verbose_name = "File Chunk"
         verbose_name_plural = "File Chunks"
 
     def __str__(self):
         return f"{self.file.file_name}_chunk_{self.chunk_index}"
-    
+
     def verify_checksum(self, computed_checksum):
         """
         Verify the integrity of the chunk
@@ -111,25 +117,25 @@ class FileChunk(models.Model):
         self.is_verified = matches
         self.save(update_fields=['is_verified'])
         return matches
-    
 
 
 
-
-
+# The Node model represents a physical or virtual storage server in our distributed system
+# Each node has its own capacity, usage statistics, and operational status
+# This helps with load balancing and monitoring the health of the storage cluster
 class Node(models.Model):
     name = models.CharField(max_length=100)
-    status = models.CharField(max_length=10)  # e.g., 'running', 'stopped'
+    status = models.CharField(max_length=10)  
     capacity = models.IntegerField()
     used_space = models.IntegerField()
 
     def __str__(self):
         return self.name
-    
 
 
-
-
+# The DataObject model creates a relationship between files and the nodes where they're stored
+# This mapping is essential for tracking where each piece of data lives in the distributed system
+# It also helps with capacity planning and data migration decisions
 class DataObject(models.Model):
     file_metadata = models.ForeignKey(FileMetadata, on_delete=models.CASCADE)
     node = models.ForeignKey(Node, on_delete=models.CASCADE)

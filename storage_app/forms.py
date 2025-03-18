@@ -12,7 +12,8 @@ from django.contrib.auth.models import User
 from .models import FileMetadata
 
 
-
+# Custom registration form that extends Django's built-in UserCreationForm
+# Adds additional fields we need for our user profiles beyond the basic Django User model
 class CustomUserCreationForm(UserCreationForm):
     full_name = forms.CharField(
         max_length=150,
@@ -26,7 +27,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     date_of_birth = forms.DateField(
         required=True,
-        widget=forms.DateInput(attrs={'type': 'date'})
+        widget=forms.DateInput(attrs={'type': 'date'})  # Uses HTML5 date picker
     )
     GENDER_CHOICES = (
         ('M', 'Male'),
@@ -40,6 +41,7 @@ class CustomUserCreationForm(UserCreationForm):
         # We use 'username' for login; full_name, date_of_birth, gender are extra fields.
         fields = ("username", "email" ,"full_name", "date_of_birth", "gender", "password1", "password2")
 
+# Custom login form that enhances the default Django authentication form
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.CharField(
         max_length=150,
@@ -49,9 +51,12 @@ class CustomAuthenticationForm(AuthenticationForm):
         widget=forms.PasswordInput(attrs={'placeholder': 'Password', 'class': 'form-control'})
     )
 
+# Form for handling file uploads to our storage system
+# Collects both file metadata and the actual file content
 class FileUploadForm(forms.ModelForm):
     class Meta:
         model = FileMetadata
         fields = ['file_name', 'description']
-    
+
     file = forms.FileField(required=True)  # File field that gets stored in MinIO
+
